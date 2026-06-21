@@ -1,0 +1,172 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #fefff5;
+  --color-surface-dim: #131313;
+  --color-surface-bright: #3a3939;
+  --color-surface-container-lowest: #0e0e0e;
+  --color-surface-container-low: #1c1b1b;
+  --color-surface-container: #201f1f;
+  --color-surface-container-high: #2a2a2a;
+  --color-surface-container-highest: #353534;
+  --color-on-surface: #e5e2e1;
+  --color-on-surface-variant: #bdcbaf;
+  --color-outline: #87957b;
+  --color-outline-variant: #3e4a35;
+  --color-primary-container: #10b981;
+  --color-secondary: #a5e7ff;
+  --color-secondary-container: #00d2ff;
+  --color-tertiary: #fefff5;
+  --color-tertiary-container: #059669;
+  --color-background: #131313;
+  --color-error: #ffb4ab;
+  --color-error-container: #93000a;
+
+  --color-primary-fixed: #34d399;
+  --color-primary-fixed-dim: #059669;
+  --color-secondary-fixed: #b6ebff;
+  --color-secondary-fixed-dim: #47d6ff;
+  --color-tertiary-fixed: #adf67c;
+  --color-tertiary-fixed-dim: #93d964;
+  --color-surface: #131313;
+
+  --font-display-xl: 'IBM Plex Sans', sans-serif;
+  --font-data-mono: 'IBM Plex Mono', monospace;
+  --font-headline-lg: 'IBM Plex Sans', sans-serif;
+  --font-body-md: 'IBM Plex Sans', sans-serif;
+  --font-label-caps: 'IBM Plex Sans', sans-serif;
+}
+
+:root {
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --neon-primary: #10b981;
+  --neon-secondary: #00d2ff;
+}
+
+body {
+  background-color: #131313;
+  color: #e5e2e1;
+  overflow-x: hidden;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+/* Glassmorphism 2.0 styles */
+.glass-card {
+  background: rgba(20, 20, 20, 0.4);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(16, 185, 129, 0.3);
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.05), inset 0 1px 2px rgba(255, 255, 255, 0.2);
+  transform: translateY(-4px) perspective(1000px) rotateX(2deg);
+}
+
+.glass-panel {
+  backdrop-filter: blur(20px) saturate(180%);
+  background: rgba(19, 19, 19, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 1px 1px 0px rgba(255, 255, 255, 0.05);
+}
+
+.neon-glow-emerald {
+  box-shadow: 0 0 40px -10px rgba(16, 185, 129, 0.4);
+}
+
+.neon-underglow {
+  box-shadow: 0 0 40px rgba(16, 185, 129, 0.08);
+}
+
+.liquid-fill-hover:hover {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, transparent 100%);
+}
+
+.liquid-fill {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0) 100%);
+}
+
+.liquid-gradient {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(0, 210, 255, 0.05) 100%);
+}
+
+/* Custom scrollbars */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(16, 185, 129, 0.2);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #059669;
+}
+
+.scroll-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Animations */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 4s ease-in-out infinite;
+}
+
+@keyframes wave {
+  0%, 100% { height: 8px; opacity: 0.4; }
+  50% { height: 24px; opacity: 1; }
+}
+
+.wave-bar {
+  width: 3px;
+  background: #10b981;
+  border-radius: 99px;
+  animation: wave 1.5s ease-in-out infinite;
+}
+
+.active-glow {
+  box-shadow: 0 0 15px #10b981, inset 0 0 5px #10b981;
+}
+
+.thinking-glow {
+  box-shadow: 0 0 15px #47d6ff, inset 0 0 5px #47d6ff;
+  animation: pulse-glow-thinking 2s infinite ease-in-out;
+}
+
+@keyframes pulse-glow-thinking {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+.scrolling-mono {
+  mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+}
+
+.collaboration-line {
+  stroke-dasharray: 10;
+  animation: dash 20s linear infinite;
+}
+
+@keyframes dash {
+  to { stroke-dashoffset: -1000; }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: fit-content;
+  animation: marquee 40s linear infinite;
+}

@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EcoTrack AI | Multi-Agent Control Room</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Ibm+Plex+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#fefff5", "surface-dim": "#131313", "tertiary-fixed-dim": "#93d964", "on-secondary-fixed": "#001f28", "primary-fixed-dim": "#65e100", "primary-fixed": "#80ff30", outline: "#87957b", "surface-bright": "#3a3939", "on-error-container": "#ffdad6", "surface-container-highest": "#353534", "on-primary-fixed-variant": "#205100", "surface-container-low": "#1c1b1b", "surface-container": "#201f1f", "secondary-fixed-dim": "#47d6ff", "on-error": "#690005", "on-surface-variant": "#bdcbaf", "inverse-primary": "#2d6c00", "on-tertiary-fixed-variant": "#235100", "secondary-container": "#00d2ff", "surface-variant": "#353534", "tertiary-fixed": "#adf67c", "on-tertiary-container": "#337200", "outline-variant": "#3e4a35", "inverse-on-surface": "#313030", "on-tertiary-fixed": "#0a2100", "on-secondary": "#003543", tertiary: "#fefff5", "on-secondary-container": "#00566a", secondary: "#a5e7ff", "surface-container-high": "#2a2a2a", "primary-container": "#7efe2c", "tertiary-container": "#adf57c", background: "#131313", "on-surface": "#e5e2e1", "on-background": "#e5e2e1", "inverse-surface": "#e5e2e1", "on-tertiary": "#163800", "on-primary-fixed": "#092100", "on-primary": "#143800", "on-secondary-fixed-variant": "#004e60", "on-primary-container": "#307200", error: "#ffb4ab", "surface-container-lowest": "#0e0e0e", "error-container": "#93000a", "secondary-fixed": "#b6ebff", "surface-tint": "#65e100", surface: "#131313"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}, spacing: {"margin-desktop": "64px", "margin-mobile": "20px", unit: "8px", gutter: "24px", "container-max": "1440px"}, fontFamily: {"display-xl": ["IBM Plex Sans"], "data-mono": ["IBM Plex Mono"], "headline-lg": ["IBM Plex Sans"], "body-md": ["IBM Plex Sans"], "label-caps": ["IBM Plex Sans"], headline: ["Ibm Plex Sans"], display: ["Ibm Plex Sans"], body: ["Ibm Plex Sans"], label: ["Ibm Plex Sans"]}, fontSize: {}}}};</script>
+<style>
+        body {
+            background-color: #131313;
+            color: #e5e2e1;
+            overflow-x: hidden;
+        }
+        .glass-card {
+            background: rgba(32, 31, 31, 0.4);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .glass-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+        .active-glow {
+            box-shadow: 0 0 15px #79ff0f, inset 0 0 5px #79ff0f;
+        }
+        .thinking-glow {
+            box-shadow: 0 0 15px #47d6ff, inset 0 0 5px #47d6ff;
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+        .scrolling-mono {
+            mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+        }
+        .collaboration-line {
+            stroke-dasharray: 10;
+            animation: dash 20s linear infinite;
+        }
+        @keyframes dash {
+            to { stroke-dashoffset: -1000; }
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md">
+<!-- Background Animation Layer -->
+<div class="fixed inset-0 z-0 opacity-20 pointer-events-none">
+<!-- STITCH_SHADER_START:ANIMATION_48 class="absolute inset-0 w-full h-full" -->
+<div class="absolute inset-0 w-full h-full" style="display:block;">
+<canvas id="shader-canvas-ANIMATION_48" style="display:block;width:100%;height:100%"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('shader-canvas-ANIMATION_48');
+
+  // Sync the WebGL drawing-buffer size with the CSS-driven layout size.
+  // This fires on initial layout and whenever the element is resized.
+  function syncSize() {
+    const w = canvas.clientWidth  || 1280;
+    const h = canvas.clientHeight || 720;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width  = w;
+      canvas.height = h;
+    }
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncSize).observe(canvas);
+  }
+  syncSize();
+
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return;
+  const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+  const fs = `precision highp float;
+varying vec2 v_texCoord;
+uniform float u_time;
+uniform vec2 u_resolution;
+
+void main() {
+    vec2 uv = v_texCoord;
+    float t = u_time * 0.15;
+    
+    // Deep liquid aurora motion
+    vec3 color1 = vec3(0.01, 0.02, 0.05); // Deep Midnight
+    vec3 color2 = vec3(0.05, 0.4, 0.15);  // Emerald Glow
+    vec3 color3 = vec3(0.0, 0.2, 0.5);    // Ocean Blue
+    vec3 color4 = vec3(0.3, 0.8, 0.2);    // Neon Accent
+    
+    float n1 = sin(uv.x * 4.0 + t) * cos(uv.y * 3.0 - t * 0.8);
+    float n2 = sin(uv.y * 5.0 - t * 1.2) * cos(uv.x * 2.0 + t * 0.5);
+    float n3 = sin((uv.x + uv.y) * 3.0 + t);
+    
+    vec3 finalColor = mix(color1, color2, clamp(n1 * 0.5 + 0.5, 0.0, 1.0));
+    finalColor = mix(finalColor, color3, clamp(n2 * 0.4, 0.0, 1.0));
+    finalColor = mix(finalColor, color4, clamp(n3 * 0.15, 0.0, 1.0));
+    
+    // Ambient vignetting
+    float dist = length(uv - 0.5);
+    finalColor *= (1.0 - dist * 0.8);
+    
+    gl_FragColor = vec4(finalColor, 1.0);
+}`;
+  function cs(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const pos = gl.getAttribLocation(prog, 'a_position');
+  gl.enableVertexAttribArray(pos);
+  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+  const uTime = gl.getUniformLocation(prog, 'u_time');
+  const uRes = gl.getUniformLocation(prog, 'u_resolution');
+  const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+
+  // u_mouse is in pixel coordinates matching u_resolution (ShaderToy convention).
+  // Shaders that need normalized coords should use: u_mouse / u_resolution.
+  let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+  window.addEventListener('mousemove', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width && rect.height) {
+      const nx = (event.clientX - rect.left) / rect.width;
+      const ny = 1.0 - (event.clientY - rect.top) / rect.height;
+      mouse.x = nx * canvas.width;
+      mouse.y = ny * canvas.height;
+    }
+  });
+
+  function render(t) {
+    if (typeof ResizeObserver === 'undefined') syncSize();
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    if (uTime) gl.uniform1f(uTime, t * 0.001);
+    if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+    if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(render);
+  }
+  render(0);
+})();
+</script>
+</div>
+<!-- STITCH_SHADER_END:ANIMATION_48 -->
+</div>
+<!-- Top Navigation -->
+<nav class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-8 py-3 max-w-container-max mx-auto bg-surface/60 backdrop-blur-xl rounded-full mt-4 mx-margin-desktop border border-white/10 shadow-2xl shadow-primary/5">
+<div class="flex items-center gap-4">
+<span class="font-display-xl text-display-xl font-bold tracking-tighter text-primary">EcoTrack AI</span>
+<div class="h-6 w-px bg-white/10 mx-2"></div>
+<div class="flex gap-6">
+<a class="text-primary border-b-2 border-primary pb-1 font-medium hover:text-primary-fixed-dim transition-colors duration-300" href="#">Multi-Agent</a>
+<a class="text-on-surface-variant font-medium hover:text-primary-fixed-dim transition-colors duration-300" href="#">Command Center</a>
+<a class="text-on-surface-variant font-medium hover:text-primary-fixed-dim transition-colors duration-300" href="#">Forecasts</a>
+<a class="text-on-surface-variant font-medium hover:text-primary-fixed-dim transition-colors duration-300" href="#">Marketplace</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-transform hover:scale-105 active:scale-95">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-transform hover:scale-105 active:scale-95">settings</button>
+<div class="w-8 h-8 rounded-full bg-primary-container/20 border border-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">person</span>
+</div>
+</div>
+</nav>
+<!-- Side Navigation -->
+<aside class="fixed left-0 top-24 bottom-24 w-20 hover:w-64 z-40 flex flex-col p-4 bg-surface-container-low/40 backdrop-blur-2xl rounded-xl my-margin-desktop ml-margin-desktop border-r border-white/5 shadow-xl transition-all duration-500 ease-in-out group">
+<div class="mb-8 flex flex-col items-center group-hover:items-start transition-all">
+<div class="w-10 h-10 rounded-lg bg-secondary-container/20 flex items-center justify-center mb-2">
+<span class="material-symbols-outlined text-secondary">memory</span>
+</div>
+<div class="hidden group-hover:block px-2">
+<p class="font-label-caps text-label-caps text-secondary uppercase">System Intelligence</p>
+<p class="font-data-mono text-[10px] text-on-surface-variant/70">AI Agent Active</p>
+</div>
+</div>
+<nav class="flex flex-col gap-2 flex-grow">
+<button class="flex items-center gap-4 p-3 text-secondary-fixed bg-secondary-container/20 rounded-lg transition-all duration-300">
+<span class="material-symbols-outlined">cloud_queue</span>
+<span class="hidden group-hover:block font-label-caps text-label-caps">Atmosphere</span>
+</button>
+<button class="flex items-center gap-4 p-3 text-on-surface-variant/70 hover:bg-white/5 hover:text-secondary rounded-lg transition-all duration-300">
+<span class="material-symbols-outlined">water_drop</span>
+<span class="hidden group-hover:block font-label-caps text-label-caps">Hydrosphere</span>
+</button>
+<button class="flex items-center gap-4 p-3 text-on-surface-variant/70 hover:bg-white/5 hover:text-secondary rounded-lg transition-all duration-300">
+<span class="material-symbols-outlined">eco</span>
+<span class="hidden group-hover:block font-label-caps text-label-caps">Biosphere</span>
+</button>
+<button class="flex items-center gap-4 p-3 text-on-surface-variant/70 hover:bg-white/5 hover:text-secondary rounded-lg transition-all duration-300">
+<span class="material-symbols-outlined">ac_unit</span>
+<span class="hidden group-hover:block font-label-caps text-label-caps">Cryosphere</span>
+</button>
+<button class="flex items-center gap-4 p-3 text-on-surface-variant/70 hover:bg-white/5 hover:text-secondary rounded-lg transition-all duration-300">
+<span class="material-symbols-outlined">public</span>
+<span class="hidden group-hover:block font-label-caps text-label-caps">Geosphere</span>
+</button>
+</nav>
+<div class="mt-auto border-t border-white/5 pt-4 flex flex-col gap-2">
+<button class="flex items-center gap-4 p-3 text-on-surface-variant/70 hover:bg-white/5 hover:text-secondary rounded-lg transition-all duration-300">
+<span class="material-symbols-outlined">analytics</span>
+<span class="hidden group-hover:block font-label-caps text-label-caps">Diagnostics</span>
+</button>
+<button class="w-full bg-primary-container text-on-primary-container rounded-lg py-2 hidden group-hover:block font-label-caps text-label-caps hover:brightness-110 transition-all">
+                Deploy Agent
+            </button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="relative z-10 pt-32 pb-24 pl-[160px] pr-margin-desktop min-h-screen">
+<!-- Dashboard Header -->
+<header class="mb-12 flex justify-between items-end">
+<div>
+<h1 class="font-display-xl text-display-xl text-primary mb-2">Multi-Agent Control</h1>
+<p class="text-on-surface-variant max-w-xl">Synchronizing 8 high-fidelity planetary intelligence agents. Global vitals are currently within stable parameters. Commencing neural mesh synchronization.</p>
+</div>
+<div class="flex gap-4">
+<div class="glass-card px-6 py-3 rounded-xl flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-primary active-glow"></div>
+<span class="font-data-mono text-data-mono uppercase">System: Online</span>
+</div>
+<div class="glass-card px-6 py-3 rounded-xl flex items-center gap-3">
+<span class="font-data-mono text-data-mono text-secondary">Mesh Load: 42%</span>
+</div>
+</div>
+</header>
+<!-- Multi-Agent Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter relative">
+<!-- Connection Mesh SVG Layer -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-visible">
+<path class="collaboration-line" d="M 300 200 L 600 200" fill="none" stroke="url(#lineGradient)" stroke-width="1"></path>
+<path class="collaboration-line" d="M 300 400 L 600 400" fill="none" stroke="url(#lineGradient)" stroke-width="1"></path>
+<path class="collaboration-line" d="M 150 250 L 150 350" fill="none" stroke="url(#lineGradient)" stroke-width="1"></path>
+<path class="collaboration-line" d="M 750 250 L 750 350" fill="none" stroke="url(#lineGradient)" stroke-width="1"></path>
+<defs>
+<lineargradient id="lineGradient" x1="0%" x2="100%" y1="0%" y2="0%">
+<stop offset="0%" style="stop-color:#79ff0f;stop-opacity:0.2"></stop>
+<stop offset="50%" style="stop-color:#47d6ff;stop-opacity:0.8"></stop>
+<stop offset="100%" style="stop-color:#79ff0f;stop-opacity:0.2"></stop>
+</lineargradient>
+</defs>
+</svg>
+<!-- Agent Module: Carbon Analyst -->
+<div class="glass-card p-6 rounded-3xl flex flex-col gap-4 relative z-10 group transition-all duration-300 hover:translate-y-[-4px]">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 rounded-full bg-primary-container/10 border border-primary-container/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container">query_stats</span>
+</div>
+<div class="w-4 h-4 rounded-full bg-primary-container active-glow"></div>
+</div>
+<div>
+<h3 class="font-headline-lg text-xl text-primary font-bold">Carbon Analyst</h3>
+<p class="text-xs text-on-surface-variant/60 uppercase tracking-widest font-label-caps">Strategic Monitoring</p>
+</div>
+<div class="h-24 bg-black/40 rounded-xl p-3 overflow-hidden scrolling-mono">
+<div class="animate-pulse flex flex-col gap-1 font-data-mono text-[10px] text-primary-fixed-dim">
+<span>&gt; FETCHING EMISSIONS_DATA_2024</span>
+<span>&gt; CROSS-REFERENCING SECTOR_DELTA</span>
+<span>&gt; CALCULATING OFFSETS...</span>
+<span>&gt; READY FOR DISPATCH.</span>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-[10px] font-data-mono text-on-surface-variant">
+<span>WORKFLOW PROGRESS</span>
+<span>88%</span>
+</div>
+<div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary-container shadow-[0_0_8px_#79ff0f]" style="width: 88%"></div>
+</div>
+</div>
+</div>
+<!-- Agent Module: Sustainability Advisor -->
+<div class="glass-card p-6 rounded-3xl flex flex-col gap-4 relative z-10 group transition-all duration-300 hover:translate-y-[-4px]">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 rounded-full bg-secondary-container/10 border border-secondary-container/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary-fixed">psychology</span>
+</div>
+<div class="w-4 h-4 rounded-full bg-secondary-fixed thinking-glow"></div>
+</div>
+<div>
+<h3 class="font-headline-lg text-xl text-primary font-bold">Sustainability Advisor</h3>
+<p class="text-xs text-on-surface-variant/60 uppercase tracking-widest font-label-caps">Policy Generation</p>
+</div>
+<div class="h-24 bg-black/40 rounded-xl p-3 overflow-hidden scrolling-mono">
+<div class="flex flex-col gap-1 font-data-mono text-[10px] text-secondary-fixed">
+<span>&gt; ANALYZING CSR_REPORTS...</span>
+<span>&gt; OPTIMIZING RECYCLING_FLOW</span>
+<span>&gt; GENERATING ESG_RECOMMENDATION</span>
+<span>&gt; WAITING FOR DATA_STREAM_2</span>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-[10px] font-data-mono text-on-surface-variant">
+<span>WORKFLOW PROGRESS</span>
+<span>45%</span>
+</div>
+<div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-secondary-fixed shadow-[0_0_8px_#47d6ff]" style="width: 45%"></div>
+</div>
+</div>
+</div>
+<!-- Agent Module: Energy Optimization -->
+<div class="glass-card p-6 rounded-3xl flex flex-col gap-4 relative z-10 group transition-all duration-300 hover:translate-y-[-4px]">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 rounded-full bg-primary-container/10 border border-primary-container/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container">bolt</span>
+</div>
+<div class="w-4 h-4 rounded-full bg-primary-container active-glow"></div>
+</div>
+<div>
+<h3 class="font-headline-lg text-xl text-primary font-bold">Energy Optimization</h3>
+<p class="text-xs text-on-surface-variant/60 uppercase tracking-widest font-label-caps">Grid Efficiency</p>
+</div>
+<div class="h-24 bg-black/40 rounded-xl p-3 overflow-hidden scrolling-mono">
+<div class="flex flex-col gap-1 font-data-mono text-[10px] text-primary-fixed-dim">
+<span>&gt; GRID_LOAD: NOMINAL</span>
+<span>&gt; SOLAR_FEED_ACTIVE</span>
+<span>&gt; PEAK_SHAVING_ENGAGED</span>
+<span>&gt; STATUS: 100% GREEN</span>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-[10px] font-data-mono text-on-surface-variant">
+<span>WORKFLOW PROGRESS</span>
+<span>94%</span>
+</div>
+<div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary-container shadow-[0_0_8px_#79ff0f]" style="width: 94%"></div>
+</div>
+</div>
+</div>
+<!-- Agent Module: Green Shopping -->
+<div class="glass-card p-6 rounded-3xl flex flex-col gap-4 relative z-10 group transition-all duration-300 hover:translate-y-[-4px]">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 rounded-full bg-primary-container/10 border border-primary-container/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container">shopping_cart</span>
+</div>
+<div class="w-4 h-4 rounded-full bg-white/20"></div>
+</div>
+<div>
+<h3 class="font-headline-lg text-xl text-primary font-bold">Green Shopping</h3>
+<p class="text-xs text-on-surface-variant/60 uppercase tracking-widest font-label-caps">Supply Chain AI</p>
+</div>
+<div class="h-24 bg-black/40 rounded-xl p-3 overflow-hidden scrolling-mono">
+<div class="flex flex-col gap-1 font-data-mono text-[10px] text-on-surface-variant/50">
+<span>&gt; SLEEP_MODE_ACTIVE</span>
+<span>&gt; NEXT_SCHEDULED_FETCH: 04:00</span>
+<span>&gt; CACHED_ITEMS: 142k</span>
+<span>&gt; READY_FOR_WAKEUP</span>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-[10px] font-data-mono text-on-surface-variant">
+<span>WORKFLOW PROGRESS</span>
+<span>0%</span>
+</div>
+<div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-white/20" style="width: 0%"></div>
+</div>
+</div>
+</div>
+<!-- Agent Module: Smart Travel -->
+<div class="glass-card p-6 rounded-3xl flex flex-col gap-4 relative z-10 group transition-all duration-300 hover:translate-y-[-4px]">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 rounded-full bg-secondary-container/10 border border-secondary-container/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary-fixed">flight</span>
+</div>
+<div class="w-4 h-4 rounded-full bg-secondary-fixed thinking-glow"></div>
+</div>
+<div>
+<h3 class="font-headline-lg text-xl text-primary font-bold">Smart Travel</h3>
+<p class="text-xs text-on-surface-variant/60 uppercase tracking-widest font-label-caps">Mobility Optimization</p>
+</div>
+<div class="h-24 bg-black/40 rounded-xl p-3 overflow-hidden scrolling-mono">
+<div class="flex flex-col gap-1 font-data-mono text-[10px] text-secondary-fixed">
+<span>&gt; ROUTE_RE-CALCULATION</span>
+<span>&gt; MINIMIZING_JET_FUEL</span>
+<span>&gt; MULTI_MODAL_SYNC</span>
+<span>&gt; DATA_INPUT_REQUIRED...</span>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-[10px] font-data-mono text-on-surface-variant">
+<span>WORKFLOW PROGRESS</span>
+<span>32%</span>
+</div>
+<div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-secondary-fixed shadow-[0_0_8px_#47d6ff]" style="width: 32%"></div>
+</div>
+</div>
+</div>
+<!-- Agent Module: Climate Research -->
+<div class="glass-card p-6 rounded-3xl flex flex-col gap-4 relative z-10 group transition-all duration-300 hover:translate-y-[-4px]">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 rounded-full bg-primary-container/10 border border-primary-container/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container">science</span>
+</div>
+<div class="w-4 h-4 rounded-full bg-primary-container active-glow"></div>
+</div>
+<div>
+<h3 class="font-headline-lg text-xl text-primary font-bold">Climate Research</h3>
+<p class="text-xs text-on-surface-variant/60 uppercase tracking-widest font-label-caps">Data Processing</p>
+</div>
+<div class="h-24 bg-black/40 rounded-xl p-3 overflow-hidden scrolling-mono">
+<div class="flex flex-col gap-1 font-data-mono text-[10px] text-primary-fixed-dim">
+<span>&gt; SIMULATING_OCEAN_TEMP</span>
+<span>&gt; ARCTIC_MELT_PROJECTION</span>
+<span>&gt; PALEOCLIMATE_COMPARISON</span>
+<span>&gt; EXPORTING_DATASET_V3</span>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-[10px] font-data-mono text-on-surface-variant">
+<span>WORKFLOW PROGRESS</span>
+<span>71%</span>
+</div>
+<div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary-container shadow-[0_0_8px_#79ff0f]" style="width: 71%"></div>
+</div>
+</div>
+</div>
+<!-- Agent Module: Predictive AI -->
+<div class="glass-card p-6 rounded-3xl flex flex-col gap-4 relative z-10 group transition-all duration-300 hover:translate-y-[-4px]">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 rounded-full bg-primary-container/10 border border-primary-container/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container">timeline</span>
+</div>
+<div class="w-4 h-4 rounded-full bg-primary-container active-glow"></div>
+</div>
+<div>
+<h3 class="font-headline-lg text-xl text-primary font-bold">Predictive AI</h3>
+<p class="text-xs text-on-surface-variant/60 uppercase tracking-widest font-label-caps">Risk Analysis</p>
+</div>
+<div class="h-24 bg-black/40 rounded-xl p-3 overflow-hidden scrolling-mono">
+<div class="flex flex-col gap-1 font-data-mono text-[10px] text-primary-fixed-dim">
+<span>&gt; 50_YEAR_PROJECTION_GEN</span>
+<span>&gt; EXTREME_WEATHER_MODELLING</span>
+<span>&gt; CONFIDENCE_INTERVAL: 98%</span>
+<span>&gt; UPDATING_DASHBOARD_LIVE</span>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-[10px] font-data-mono text-on-surface-variant">
+<span>WORKFLOW PROGRESS</span>
+<span>60%</span>
+</div>
+<div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary-container shadow-[0_0_8px_#79ff0f]" style="width: 60%"></div>
+</div>
+</div>
+</div>
+<!-- Agent Module: ESG Intelligence -->
+<div class="glass-card p-6 rounded-3xl flex flex-col gap-4 relative z-10 group transition-all duration-300 hover:translate-y-[-4px]">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 rounded-full bg-secondary-container/10 border border-secondary-container/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary-fixed">verified_user</span>
+</div>
+<div class="w-4 h-4 rounded-full bg-secondary-fixed thinking-glow"></div>
+</div>
+<div>
+<h3 class="font-headline-lg text-xl text-primary font-bold">ESG Intelligence</h3>
+<p class="text-xs text-on-surface-variant/60 uppercase tracking-widest font-label-caps">Compliance Scoring</p>
+</div>
+<div class="h-24 bg-black/40 rounded-xl p-3 overflow-hidden scrolling-mono">
+<div class="flex flex-col gap-1 font-data-mono text-[10px] text-secondary-fixed">
+<span>&gt; VERIFYING_SOURCE_L3</span>
+<span>&gt; VALIDATING_CERTIFICATES</span>
+<span>&gt; ESG_RATING: AA+ (TENTATIVE)</span>
+<span>&gt; WAITING_FOR_FINAL_KEY</span>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-[10px] font-data-mono text-on-surface-variant">
+<span>WORKFLOW PROGRESS</span>
+<span>12%</span>
+</div>
+<div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-secondary-fixed shadow-[0_0_8px_#47d6ff]" style="width: 12%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- System Log / Collaboration Stream -->
+<section class="mt-12">
+<div class="glass-card rounded-3xl p-8 overflow-hidden relative">
+<div class="flex justify-between items-center mb-6">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-secondary">hub</span>
+<h2 class="font-headline-lg text-2xl text-primary">Inter-Agent Collaboration Stream</h2>
+</div>
+<div class="flex gap-2">
+<span class="px-3 py-1 rounded-full bg-primary/10 text-[10px] font-data-mono text-primary uppercase border border-primary/20">Real-Time Sync</span>
+<span class="px-3 py-1 rounded-full bg-secondary-container/10 text-[10px] font-data-mono text-secondary-fixed uppercase border border-secondary-container/20">Encrypted</span>
+</div>
+</div>
+<div class="space-y-4 font-data-mono text-sm max-h-64 overflow-y-auto pr-4 custom-scrollbar">
+<div class="flex gap-4 items-start py-2 border-b border-white/5">
+<span class="text-primary-fixed-dim shrink-0">[14:02:11]</span>
+<p><span class="text-secondary-fixed">Predictive AI</span> shared <span class="italic">"Flooding Risk Matrix"</span> with <span class="text-secondary-fixed">Sustainability Advisor</span>. Impact analysis initiated.</p>
+</div>
+<div class="flex gap-4 items-start py-2 border-b border-white/5">
+<span class="text-primary-fixed-dim shrink-0">[14:02:45]</span>
+<p><span class="text-secondary-fixed">Carbon Analyst</span> requested <span class="italic">"Supply Chain Delta"</span> from <span class="text-secondary-fixed">Green Shopping</span>. Data retrieval in progress...</p>
+</div>
+<div class="flex gap-4 items-start py-2 border-b border-white/5">
+<span class="text-primary-fixed-dim shrink-0">[14:03:02]</span>
+<p><span class="text-primary-container">Energy Optimization</span> updated grid priority based on <span class="text-secondary-fixed">Climate Research</span> weather forecast.</p>
+</div>
+<div class="flex gap-4 items-start py-2 border-b border-white/5">
+<span class="text-primary-fixed-dim shrink-0">[14:03:55]</span>
+<p><span class="text-secondary-fixed">ESG Intelligence</span> cross-verified 1.2k transactions with <span class="text-secondary-fixed">Carbon Analyst</span>. Score updated to 0.88.</p>
+</div>
+</div>
+<!-- Atmospheric Light Orb -->
+<div class="absolute -bottom-20 -right-20 w-64 h-64 bg-primary-container/10 blur-[80px] rounded-full pointer-events-none"></div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="fixed bottom-0 left-0 w-full z-50 flex justify-between items-center px-margin-desktop py-2 bg-surface-container-lowest/30 backdrop-blur-md border-t border-white/10 font-data-mono text-data-mono text-tertiary-fixed-dim">
+<div class="flex gap-8">
+<span class="hover:text-tertiary transition-opacity cursor-default">© 2024 EcoTrack AI • Planetary Vitals: STABLE</span>
+</div>
+<div class="flex gap-12">
+<span class="hover:text-tertiary transition-opacity cursor-default">Connectivity: 99.9%</span>
+<span class="hover:text-tertiary transition-opacity cursor-default">Global Latency: 12ms</span>
+<span class="hover:text-tertiary transition-opacity cursor-default">Carbon Offset: Active</span>
+</div>
+</footer>
+<script>
+        // Micro-interaction for scrolling mono text
+        const scrollingTexts = document.querySelectorAll('.scrolling-mono > div');
+        
+        scrollingTexts.forEach(el => {
+            setInterval(() => {
+                const first = el.firstElementChild;
+                el.appendChild(first);
+            }, 3000);
+        });
+
+        // Dynamic progress bar fluctuations
+        const bars = document.querySelectorAll('.h-full');
+        setInterval(() => {
+            bars.forEach(bar => {
+                if (Math.random() > 0.8) {
+                    const currentWidth = parseFloat(bar.style.width);
+                    const delta = (Math.random() - 0.5) * 5;
+                    const newWidth = Math.min(100, Math.max(0, currentWidth + delta));
+                    bar.style.transition = 'width 1s ease-in-out';
+                    bar.style.width = newWidth + '%';
+                }
+            });
+        }, 2000);
+    </script>
+</body></html>

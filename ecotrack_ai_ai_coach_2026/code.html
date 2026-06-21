@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EcoTrack AI - Sustainability Coach</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Ibm+Plex+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            backdrop-filter: blur(20px) saturate(180%);
+            background: rgba(19, 19, 19, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: inset 1px 1px 0px rgba(255, 255, 255, 0.05);
+        }
+        .liquid-gradient {
+            background: linear-gradient(135deg, rgba(121, 255, 15, 0.1) 0%, rgba(0, 210, 255, 0.05) 100%);
+        }
+        .neon-underglow {
+            box-shadow: 0 0 40px rgba(121, 255, 15, 0.08);
+        }
+        .voice-wave-container {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            height: 40px;
+        }
+        .wave-bar {
+            width: 3px;
+            background: #79ff0f;
+            border-radius: 99px;
+            animation: wave 1.5s ease-in-out infinite;
+        }
+        @keyframes wave {
+            0%, 100% { height: 8px; opacity: 0.4; }
+            50% { height: 24px; opacity: 1; }
+        }
+        .scroll-hide::-webkit-scrollbar { display: none; }
+    </style>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#fefff5", "surface-dim": "#131313", "tertiary-fixed-dim": "#93d964", "on-secondary-fixed": "#001f28", "primary-fixed-dim": "#65e100", "primary-fixed": "#80ff30", outline: "#87957b", "surface-bright": "#3a3939", "on-error-container": "#ffdad6", "surface-container-highest": "#353534", "on-primary-fixed-variant": "#205100", "surface-container-low": "#1c1b1b", "surface-container": "#201f1f", "secondary-fixed-dim": "#47d6ff", "on-error": "#690005", "on-surface-variant": "#bdcbaf", "inverse-primary": "#2d6c00", "on-tertiary-fixed-variant": "#235100", "secondary-container": "#00d2ff", "surface-variant": "#353534", "tertiary-fixed": "#adf67c", "on-tertiary-container": "#337200", "outline-variant": "#3e4a35", "inverse-on-surface": "#313030", "on-tertiary-fixed": "#0a2100", "on-secondary": "#003543", tertiary: "#fefff5", "on-secondary-container": "#00566a", secondary: "#a5e7ff", "surface-container-high": "#2a2a2a", "primary-container": "#7efe2c", "tertiary-container": "#adf57c", background: "#131313", "on-surface": "#e5e2e1", "on-background": "#e5e2e1", "inverse-surface": "#e5e2e1", "on-tertiary": "#163800", "on-primary-fixed": "#092100", "on-primary": "#143800", "on-secondary-fixed-variant": "#004e60", "on-primary-container": "#307200", error: "#ffb4ab", "surface-container-lowest": "#0e0e0e", "error-container": "#93000a", "secondary-fixed": "#b6ebff", "surface-tint": "#65e100", surface: "#131313"}, spacing: {"margin-desktop": "64px", "margin-mobile": "20px", unit: "8px", gutter: "24px", "container-max": "1440px"}, fontFamily: {"display-xl": ["IBM Plex Sans"], "data-mono": ["IBM Plex Mono"], "label-caps": ["IBM Plex Sans"], "headline-lg": ["IBM Plex Sans"], "body-md": ["IBM Plex Sans"], headline: ["Ibm Plex Sans"], display: ["Ibm Plex Sans"], body: ["Ibm Plex Sans"], label: ["Ibm Plex Sans"]}, fontSize: {}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}}}};</script>
+</head>
+<body class="bg-background text-on-surface font-body-md overflow-hidden h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-8 py-3 max-w-container-max mx-auto bg-surface/60 backdrop-blur-xl rounded-full mt-4 mx-6 border border-white/10 shadow-2xl shadow-primary/5">
+<div class="flex items-center gap-4">
+<span class="font-display-xl text-headline-lg font-bold tracking-tighter text-primary">EcoTrack AI</span>
+<nav class="hidden md:flex gap-6 ml-8">
+<a class="text-primary border-b-2 border-primary pb-1 font-medium hover:text-primary-fixed-dim transition-colors duration-300" href="#">Command Center</a>
+<a class="text-on-surface-variant font-medium hover:text-primary-fixed-dim transition-colors duration-300" href="#">Multi-Agent</a>
+<a class="text-on-surface-variant font-medium hover:text-primary-fixed-dim transition-colors duration-300" href="#">Forecasts</a>
+<a class="text-on-surface-variant font-medium hover:text-primary-fixed-dim transition-colors duration-300" href="#">Marketplace</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-transform hover:scale-110">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-transform hover:scale-110">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<div class="w-10 h-10 rounded-full border border-primary/20 bg-surface-container-high flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close-up portrait of a tech-savvy environmental scientist with glowing green digital reflections on their glasses. The lighting is bioluminescent and moody, emphasizing a futuristic sustainable research atmosphere with soft focus greenery in the background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhMoXKBcu6VXFc-sJObuiBh0_OfLHNqO7Ec9aXfWbnJhkIDKGMNl4DGD9Q2ZF_0BB3r2YVRpmxCNPhti1udtVJT-HYb4qTPz_IfT6Jktm9bf56hXZz-EWDENFZnjQsj4UbFPq5YV9HfoLdy_TTE9EsARYS9Xrl9DDI00jWcae7oj3oQFkjcZXIKI57fXh4bc9mevu5kDDFVaVyw8ZgM0PoQM_jJzCdC_E1qkAYrXCOb0Pq96sapzms"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar (Left) -->
+<aside class="fixed left-0 top-24 bottom-24 w-20 hover:w-64 z-40 flex flex-col p-4 transition-all duration-300 bg-surface-container-low/40 backdrop-blur-2xl rounded-xl my-4 ml-6 border-r border-white/5 shadow-xl group overflow-hidden">
+<div class="flex flex-col gap-8 h-full">
+<div class="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
+<div class="w-10 h-10 rounded-lg bg-primary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container" data-icon="neurology">neurology</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-caps text-[10px] text-on-surface-variant tracking-widest uppercase">System Intelligence</span>
+<span class="text-xs text-primary-fixed-dim font-data-mono">AI Agent Active</span>
+</div>
+</div>
+<nav class="flex flex-col gap-2">
+<div class="flex items-center gap-4 p-2 text-secondary-fixed bg-secondary-container/20 rounded-lg transition-all">
+<span class="material-symbols-outlined" data-icon="cloud_queue">cloud_queue</span>
+<span class="opacity-0 group-hover:opacity-100 transition-opacity font-data-mono text-sm whitespace-nowrap">Atmosphere</span>
+</div>
+<div class="flex items-center gap-4 p-2 text-on-surface-variant/70 hover:bg-white/5 hover:text-secondary rounded-lg transition-all">
+<span class="material-symbols-outlined" data-icon="water_drop">water_drop</span>
+<span class="opacity-0 group-hover:opacity-100 transition-opacity font-data-mono text-sm whitespace-nowrap">Hydrosphere</span>
+</div>
+<div class="flex items-center gap-4 p-2 text-on-surface-variant/70 hover:bg-white/5 hover:text-secondary rounded-lg transition-all">
+<span class="material-symbols-outlined" data-icon="eco">eco</span>
+<span class="opacity-0 group-hover:opacity-100 transition-opacity font-data-mono text-sm whitespace-nowrap">Biosphere</span>
+</div>
+<div class="flex items-center gap-4 p-2 text-on-surface-variant/70 hover:bg-white/5 hover:text-secondary rounded-lg transition-all">
+<span class="material-symbols-outlined" data-icon="ac_unit">ac_unit</span>
+<span class="opacity-0 group-hover:opacity-100 transition-opacity font-data-mono text-sm whitespace-nowrap">Cryosphere</span>
+</div>
+<div class="flex items-center gap-4 p-2 text-on-surface-variant/70 hover:bg-white/5 hover:text-secondary rounded-lg transition-all">
+<span class="material-symbols-outlined" data-icon="public">public</span>
+<span class="opacity-0 group-hover:opacity-100 transition-opacity font-data-mono text-sm whitespace-nowrap">Geosphere</span>
+</div>
+</nav>
+<div class="mt-auto flex flex-col gap-2">
+<div class="flex items-center gap-4 p-2 text-on-surface-variant/50 hover:text-secondary transition-all">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="opacity-0 group-hover:opacity-100 transition-opacity font-data-mono text-xs">Diagnostics</span>
+</div>
+<div class="flex items-center gap-4 p-2 text-on-surface-variant/50 hover:text-secondary transition-all">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+<span class="opacity-0 group-hover:opacity-100 transition-opacity font-data-mono text-xs">Help</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 flex mt-28 mb-12 ml-32 mr-8 gap-6 relative">
+<!-- Background Animation -->
+<!-- Left Column: AI Reasoning Chat -->
+<section class="flex-[2] glass-panel rounded-3xl overflow-hidden flex flex-col shadow-2xl relative">
+<div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-primary-container animate-pulse shadow-[0_0_8px_#79ff0f]"></div>
+<h2 class="font-headline-lg text-lg text-primary tracking-tight">Eco-Route Optimization</h2>
+</div>
+<div class="flex items-center gap-2">
+<span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase">High Efficiency</span>
+</div>
+</div>
+<!-- Chat History -->
+<div class="flex-1 overflow-y-auto p-8 space-y-8 scroll-hide">
+<!-- User Message -->
+<div class="flex justify-end">
+<div class="max-w-[80%] glass-panel rounded-2xl rounded-tr-none p-5 bg-white/5">
+<p class="text-on-surface/90 text-sm leading-relaxed">
+                            I need to travel from San Francisco to Copenhagen next month. What's the most sustainable route that keeps travel time under 15 hours?
+                        </p>
+</div>
+</div>
+<!-- AI Thinking Block -->
+<div class="flex gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-container/20 flex-shrink-0 flex items-center justify-center border border-primary/20">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<div class="flex-1 space-y-4">
+<div class="glass-panel rounded-2xl rounded-tl-none p-6 liquid-gradient border-primary/10">
+<h3 class="text-primary-fixed-dim font-bold text-xs uppercase tracking-widest mb-4">Reasoning Engine</h3>
+<div class="space-y-4 text-sm text-on-surface-variant leading-relaxed">
+<p class="flex gap-3 items-start">
+<span class="material-symbols-outlined text-secondary text-base mt-1" data-icon="search">search</span>
+<span>Scanning transatlantic corridor for carbon-offset verified carriers and SAF (Sustainable Aviation Fuel) availability...</span>
+</p>
+<div class="pl-7 space-y-2">
+<div class="flex items-center gap-4 bg-white/5 p-3 rounded-xl border border-white/10">
+<div class="w-1 h-8 bg-secondary-container rounded-full"></div>
+<div class="flex-1">
+<p class="text-[10px] font-data-mono uppercase opacity-50">Predictive AI</p>
+<p class="text-xs text-secondary-fixed">Analyzing high-altitude wind patterns for fuel optimization.</p>
+</div>
+</div>
+<div class="flex items-center gap-4 bg-white/5 p-3 rounded-xl border border-white/10">
+<div class="w-1 h-8 bg-primary-container rounded-full"></div>
+<div class="flex-1">
+<p class="text-[10px] font-data-mono uppercase opacity-50">Smart Travel Agent</p>
+<p class="text-xs text-primary-fixed-dim">Cross-referencing rail connections for the final leg in Europe.</p>
+</div>
+</div>
+</div>
+<p>I've isolated three viable corridors. The optimal balance involves a non-stop to Amsterdam using SAF, followed by a high-speed Eurostar connection. This reduces CO2 emissions by <span class="text-primary-fixed font-bold">42%</span> compared to a standard layover flight, while staying within your <span class="text-primary underline decoration-primary/30">15-hour window</span>.</p>
+</div>
+</div>
+<!-- Data Visualization inside chat -->
+<div class="grid grid-cols-2 gap-4">
+<div class="glass-panel p-4 rounded-xl border-white/5 bg-white/2">
+<p class="text-[10px] font-label-caps text-on-surface-variant opacity-60 mb-2">Carbon Footprint (kg)</p>
+<div class="h-2 w-full bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-primary-container w-[58%]" style="box-shadow: 0 0 10px #79ff0f;"></div>
+</div>
+<div class="flex justify-between mt-2 text-[10px] font-data-mono">
+<span>Eco-Route: 340kg</span>
+<span class="text-error">Avg: 585kg</span>
+</div>
+</div>
+<div class="glass-panel p-4 rounded-xl border-white/5 bg-white/2">
+<p class="text-[10px] font-label-caps text-on-surface-variant opacity-60 mb-2">SAF Availability</p>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-sm" data-icon="verified">verified</span>
+<span class="text-xs text-primary">KLM High-Cert Blend</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Voice & Input Area -->
+<div class="p-6 bg-surface-container-highest/50 backdrop-blur-md border-t border-white/10">
+<div class="flex items-end gap-4">
+<div class="flex-1 glass-panel rounded-2xl flex flex-col p-4 focus-within:ring-1 focus-within:ring-secondary/50 transition-all">
+<textarea class="bg-transparent border-none focus:ring-0 text-sm text-on-surface placeholder:text-on-surface-variant/40 resize-none h-12 scroll-hide" placeholder="Ask about carbon offsets or alternative routes..."></textarea>
+<div class="flex justify-between items-center mt-2">
+<div class="voice-wave-container">
+<div class="wave-bar" style="animation-delay: 0.1s"></div>
+<div class="wave-bar" style="animation-delay: 0.3s"></div>
+<div class="wave-bar" style="animation-delay: 0.2s"></div>
+<div class="wave-bar" style="animation-delay: 0.4s"></div>
+<div class="wave-bar" style="animation-delay: 0.2s"></div>
+<span class="text-[10px] font-data-mono ml-2 text-primary/50 tracking-tighter">LISTENING...</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-full hover:bg-white/10 text-on-surface-variant">
+<span class="material-symbols-outlined text-xl" data-icon="attach_file">attach_file</span>
+</button>
+<button class="bg-primary text-surface-dim p-2 rounded-xl hover:scale-105 active:scale-95 transition-transform shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined font-bold" data-icon="send">send</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Column: Agent Collaboration & Insights -->
+<section class="flex-1 flex flex-col gap-6 h-full">
+<!-- Agent Collaboration Visual -->
+<div class="glass-panel p-6 rounded-3xl flex flex-col gap-6 relative overflow-hidden">
+<div class="absolute -top-12 -right-12 w-32 h-32 bg-secondary/10 blur-3xl rounded-full"></div>
+<h3 class="font-label-caps text-xs text-primary/70 tracking-[0.2em] uppercase">Agent Collaboration</h3>
+<div class="space-y-4 relative">
+<!-- Agent Card 1 -->
+<div class="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-secondary/30 transition-colors group">
+<div class="w-12 h-12 rounded-full bg-secondary-container/20 border border-secondary/30 flex items-center justify-center relative">
+<span class="material-symbols-outlined text-secondary" data-icon="query_stats">query_stats</span>
+<div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background shadow-lg shadow-green-500/50"></div>
+</div>
+<div class="flex-1">
+<p class="text-sm font-semibold text-secondary">Predictive AI</p>
+<p class="text-[10px] text-on-surface-variant font-data-mono">Status: Routing Winds</p>
+</div>
+</div>
+<!-- Connection Line -->
+<div class="ml-6 w-0.5 h-6 bg-gradient-to-b from-secondary/50 to-primary/50"></div>
+<!-- Agent Card 2 -->
+<div class="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/30 transition-colors group">
+<div class="w-12 h-12 rounded-full bg-primary-container/20 border border-primary/30 flex items-center justify-center relative">
+<span class="material-symbols-outlined text-primary" data-icon="flight_takeoff">flight_takeoff</span>
+<div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background shadow-lg shadow-green-500/50"></div>
+</div>
+<div class="flex-1">
+<p class="text-sm font-semibold text-primary">Smart Travel</p>
+<p class="text-[10px] text-on-surface-variant font-data-mono">Status: Booking API Link</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Climate Coaching Tips -->
+<div class="glass-panel p-6 rounded-3xl flex-1 flex flex-col gap-4">
+<h3 class="font-label-caps text-xs text-tertiary-fixed-dim tracking-[0.2em] uppercase">Personalized Coaching</h3>
+<div class="space-y-4">
+<div class="p-4 rounded-2xl bg-primary-container/5 border border-primary/10">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="tips_and_updates">tips_and_updates</span>
+<span class="text-xs font-bold text-primary">Pro Tip: Luggage weight</span>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed">Reducing your checked bag by 5kg can save approximately 12kg of CO2 on this route. Every gram counts at 30,000 feet.</p>
+</div>
+<div class="p-4 rounded-2xl bg-secondary-container/5 border border-secondary/10">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-secondary text-sm" data-icon="nest_multi_room">nest_multi_room</span>
+<span class="text-xs font-bold text-secondary">Smart Accommodation</span>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed">Copenhagen’s 'Hotel Bella Sky' has a Platinum LEED rating. I can sync your itinerary with their HVAC automation system.</p>
+</div>
+</div>
+<div class="mt-auto">
+<div class="relative w-full h-32 rounded-2xl overflow-hidden shadow-inner group">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Futuristic cityscape of Copenhagen with vast green rooftops, wind turbines in the harbor, and sleek solar-powered architecture during a misty blue hour with neon accent lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGpv6zCeTH2tY-GD5kbYYmXNL0P8ttME-eSeGluQRnfUXmVUWswc_OUpBpd3tDqj2ZwHb01HpoNQtMWan268Su-JzT1egfQb3nNGPZzNEqMujo2r8wahIpPT9cYyYS34Hwty7p5H9Sxsl2Chfn4efXxIpsc0Mh8ed7oczKKN4_Iy3PTvxkKqVqQvxYDzImWuUvFxyF8ruzxsKfLuF9qtQibv1VJ6-JLIULW66uf69x8IORZSIi6hFH"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background to-transparent p-4 flex flex-col justify-end">
+<span class="text-[10px] font-data-mono text-primary/80">Destination Impact</span>
+<span class="text-xs font-bold">Copenhagen Eco-Hub</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer Status Bar -->
+<footer class="fixed bottom-0 left-0 w-full z-50 flex justify-between items-center px-margin-desktop py-2 bg-surface-container-lowest/30 backdrop-blur-md border-t border-white/10 text-tertiary-fixed-dim font-data-mono text-[10px]">
+<div class="flex items-center gap-6">
+<span>© 2024 EcoTrack AI • Planetary Vitals: STABLE</span>
+<div class="flex items-center gap-2">
+<div class="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+<span class="opacity-60 text-on-surface-variant">Connectivity: 99.9%</span>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<span class="opacity-60 text-on-surface-variant">Global Latency: 12ms</span>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-xs" data-icon="shield_check">shield_lock</span>
+<span class="text-tertiary">Carbon Offset: Active</span>
+</div>
+</div>
+</footer>
+<!-- Floating Action Button -->
+<button class="fixed bottom-16 right-8 z-[60] bg-primary-container text-on-primary-container px-6 py-4 rounded-2xl flex items-center gap-3 shadow-[0_0_25px_rgba(121,255,15,0.3)] hover:scale-105 active:scale-95 transition-all group overflow-hidden">
+<div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+<span class="material-symbols-outlined relative" data-icon="description">description</span>
+<span class="font-bold text-sm tracking-tight relative">Generate Report</span>
+</button>
+<script>
+        // Micro-interaction for smooth scrolling and textarea behavior
+        const textarea = document.querySelector('textarea');
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        // Atmospheric mouse glow effect
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            document.body.style.background = `radial-gradient(circle at ${x * 100}% ${y * 100}%, rgba(121,255,15,0.05) 0%, #131313 50%)`;
+        });
+    </script>
+</body></html>
