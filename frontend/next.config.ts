@@ -6,10 +6,6 @@ const nextConfig: NextConfig = {
 
   // Allow external image domains used in the app
   images: {
-    domains: [
-      "lh3.googleusercontent.com",
-      "images.unsplash.com",
-    ],
     remotePatterns: [
       { protocol: "https", hostname: "**.googleusercontent.com" },
       { protocol: "https", hostname: "**.unsplash.com" },

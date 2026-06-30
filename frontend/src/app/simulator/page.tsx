@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import DashboardShell from '../components/DashboardShell';
+import GlassCard from '../components/GlassCard';
 
 interface SimulationResult {
   year: number;
@@ -75,7 +76,7 @@ export default function SimulatorPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Controls Panel */}
-          <div className="lg:col-span-4 glass-card rounded-3xl p-6 border border-white/10 flex flex-col gap-6">
+          <GlassCard className="lg:col-span-4 flex flex-col gap-6" glowColor="cyan">
             <h2 className="font-label-caps text-xs text-secondary uppercase tracking-widest font-bold flex items-center gap-2">
               <span className="material-symbols-outlined text-sm">tune</span>
               Scenario Parameters
@@ -184,7 +185,7 @@ export default function SimulatorPage() {
                 </>
               )}
             </button>
-          </div>
+          </GlassCard>
 
           {/* Results Panel */}
           <div className="lg:col-span-8 flex flex-col gap-6">
@@ -212,16 +213,16 @@ export default function SimulatorPage() {
                       color: lastResult.temperature_delta < 1.5 ? 'text-primary-container' : 'text-error'
                     },
                   ].map((card) => (
-                    <div key={card.label} className="glass-card p-4 rounded-2xl border border-white/10">
+                    <GlassCard key={card.label} className="p-4 rounded-2xl" tiltEnabled={true} glowColor="none">
                       <div className="font-mono text-[9px] text-on-surface-variant/60 uppercase mb-1">{card.label}</div>
                       <div className={`text-xl font-bold ${card.color}`}>{card.value}</div>
                       <div className="font-mono text-[9px] text-on-surface-variant/40 mt-0.5">{card.subtext}</div>
-                    </div>
+                    </GlassCard>
                   ))}
                 </div>
 
                 {/* Visual Chart */}
-                <div className="glass-card p-6 rounded-3xl border border-white/10 flex-grow">
+                <GlassCard className="p-6 flex-grow" glowColor="emerald">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="font-label-caps text-xs font-bold uppercase tracking-widest text-white">
                       Emission Trajectory Projection
@@ -251,10 +252,10 @@ export default function SimulatorPage() {
                       </div>
                     ))}
                   </div>
-                </div>
+                </GlassCard>
 
                 {/* Data Table */}
-                <div className="glass-card rounded-3xl overflow-hidden border border-white/10">
+                <GlassCard className="overflow-hidden p-0" tiltEnabled={false}>
                   <div className="p-4 bg-white/5 border-b border-white/5">
                     <h3 className="font-mono text-[10px] uppercase tracking-wider text-on-surface-variant font-bold">
                       Decadal Projection Milestones
@@ -288,10 +289,10 @@ export default function SimulatorPage() {
                       </tbody>
                     </table>
                   </div>
-                </div>
+                </GlassCard>
               </>
             ) : (
-              <div className="glass-card rounded-3xl border border-white/10 flex-grow flex flex-col items-center justify-center gap-6 py-16 text-center min-h-[400px]">
+              <GlassCard className="flex-grow flex flex-col items-center justify-center gap-6 py-16 text-center min-h-[400px]" glowColor="emerald">
                 <span className="material-symbols-outlined text-on-surface-variant/20 text-7xl">timeline</span>
                 <div>
                   <h3 className="text-lg font-bold text-white mb-2">Configure Parameters & Run Simulation</h3>
@@ -305,7 +306,7 @@ export default function SimulatorPage() {
                 >
                   Launch Default Simulation
                 </button>
-              </div>
+              </GlassCard>
             )}
           </div>
         </div>

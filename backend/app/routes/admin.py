@@ -9,7 +9,7 @@ from app.schemas import AdminDashboardStats
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
-@router.get("/dashboard", response_model=AdminDashboardStats)
+@router.get("/dashboard-stats", response_model=AdminDashboardStats, summary="Admin platform statistics")
 def admin_dashboard(admin: User = Depends(get_current_admin), db: Session = Depends(get_db)):
     total_users = db.query(User).count()
     total_calcs = db.query(CarbonCalculation).count()

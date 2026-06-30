@@ -41,7 +41,7 @@ export default function AuthPage() {
     setLoading(true);
     setError('');
     try {
-      const ok = await login('demo@terramind_ai.ai', 'demo1234');
+      const ok = await login('demo@terramind.ai', 'demo1234');
       if (ok) router.push('/dashboard');
       else setError('Demo account not available. Please sign up.');
     } catch {
@@ -105,8 +105,9 @@ export default function AuthPage() {
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             {mode === 'signup' && (
               <div>
-                <label className="font-mono text-[9px] text-on-surface-variant/60 uppercase tracking-wider block mb-1.5">Full Name</label>
+                <label htmlFor="name-input" className="font-mono text-[9px] text-on-surface-variant/60 uppercase tracking-wider block mb-1.5">Full Name</label>
                 <input
+                  id="name-input"
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -117,31 +118,35 @@ export default function AuthPage() {
             )}
 
             <div>
-              <label className="font-mono text-[9px] text-on-surface-variant/60 uppercase tracking-wider block mb-1.5">Email Address</label>
+              <label htmlFor="email-input" className="font-mono text-[9px] text-on-surface-variant/60 uppercase tracking-wider block mb-1.5">Email Address</label>
               <input
+                id="email-input"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                aria-required="true"
                 placeholder="you@example.com"
                 className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-on-surface-variant/30 focus:outline-none focus:ring-1 focus:ring-primary-container/50 transition-all"
               />
             </div>
 
             <div>
-              <label className="font-mono text-[9px] text-on-surface-variant/60 uppercase tracking-wider block mb-1.5">Password</label>
+              <label htmlFor="password-input" className="font-mono text-[9px] text-on-surface-variant/60 uppercase tracking-wider block mb-1.5">Password</label>
               <input
+                id="password-input"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                aria-required="true"
                 placeholder="••••••••"
                 className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-on-surface-variant/30 focus:outline-none focus:ring-1 focus:ring-primary-container/50 transition-all"
               />
             </div>
 
             {error && (
-              <div className="text-error text-xs font-mono text-center py-2 bg-error-container/10 border border-error/20 rounded-xl px-3">
+              <div role="alert" aria-live="assertive" className="text-error text-xs font-mono text-center py-2 bg-error-container/10 border border-error/20 rounded-xl px-3">
                 {error}
               </div>
             )}
@@ -149,6 +154,7 @@ export default function AuthPage() {
             <button
               type="submit"
               disabled={loading}
+              aria-live="polite"
               className="w-full py-3.5 bg-primary-container text-on-primary-container font-label-caps text-xs font-bold uppercase tracking-wider rounded-xl hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] disabled:opacity-50 cursor-pointer mt-1 flex items-center justify-center gap-2"
             >
               {loading ? (

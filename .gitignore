@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+.npm/
+.npm-cache/
+
+# Next.js build output
+.next/
+out/
+build/
+
+# Python caching & environments
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.venv/
+venv/
+env/
+ENV/
+
+# Database files
+*.db
+*.sqlite3
+
+# Environment files and credentials (do NOT commit secrets)
+.env
+.env.local
+.env.production
+.env.development
+.env.test
+
+# OS Files
+.DS_Store
+Thumbs.db

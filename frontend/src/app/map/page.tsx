@@ -84,7 +84,7 @@ export default function ClimateMapPage() {
                       <div className="text-[9px] font-mono text-on-surface-variant/50 uppercase mt-0.5">{country.country_code}</div>
                     </div>
                     <div className="text-right shrink-0">
-                      <div className="text-xs font-mono text-white font-bold">{(country.emissions_tons / 1000).toFixed(1)}Gt CO2</div>
+                      <div className="text-xs font-mono text-white font-bold">{country.emissions_tons.toFixed(1)}Gt CO2</div>
                       <div className={`text-[9px] font-mono ${getRiskColor(country.climate_risk_score)}`}>
                         {getRiskLabel(country.climate_risk_score)}
                       </div>
@@ -112,7 +112,7 @@ export default function ClimateMapPage() {
                   <div>
                     <div className="font-mono text-[9px] text-on-surface-variant/60 uppercase tracking-wider mb-2">Annual CO2 Emissions</div>
                     <div className="font-display-xl text-3xl font-bold text-white">
-                      {(selectedCountry.emissions_tons / 1000).toFixed(2)}<span className="text-sm font-normal text-on-surface-variant ml-2">Gt CO2e</span>
+                      {selectedCountry.emissions_tons.toFixed(2)}<span className="text-sm font-normal text-on-surface-variant ml-2">Gt CO2e</span>
                     </div>
                     <div className="h-2 bg-white/5 rounded-full mt-3 overflow-hidden">
                       <div

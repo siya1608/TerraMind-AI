@@ -254,10 +254,19 @@ docker-compose up --build
    Open [http://localhost:3000](http://localhost:3000) in your web browser.
 
 ### Running Test Suite
-Execute the pytest suite to check database and routing integrity:
+
+#### Backend (FastAPI) Test Suite
+Execute pytest to run security, calculations, marketplace, and gamification tests with coverage metrics:
 ```bash
 cd backend
-python3 -m pytest
+python -m pytest tests/ -v --cov=app --cov-report=term-missing
+```
+
+#### Frontend (Next.js) Test Suite
+Execute Jest to run client API client and input validation tests:
+```bash
+cd frontend
+npm test
 ```
 
 ---

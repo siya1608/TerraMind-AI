@@ -87,12 +87,12 @@ class AIAgentCoordinator:
                             if len(parts) == 2:
                                 agent = parts[0].replace("[", "").replace("]", "").strip()
                                 message = parts[1].strip()
-                                log_entries.append({"agent": agent, "message": message})
+                                log_entries.append({"agent": agent, "message": message, "output": message})
                         else:
                             final_rec.append(line)
                             
                     if not log_entries:
-                        log_entries = [{"agent": agent, "message": "Analyzing data matrices..."} for agent in agents_involved]
+                        log_entries = [{"agent": agent, "message": "Analyzing data matrices...", "output": "Analyzing data matrices..."} for agent in agents_involved]
                         
                     return {
                         "status": "completed",
@@ -111,19 +111,23 @@ class AIAgentCoordinator:
             agent_outputs = [
                 {
                     "agent": "Carbon Analyst",
-                    "message": f"Scanning user travel entries. Current baseline transport emissions sit at {round(total_co2 * 0.4, 2)} tons CO2. Extrapolating flight metrics..."
+                    "message": f"Scanning user travel entries. Current baseline transport emissions sit at {round(total_co2 * 0.4, 2)} tons CO2. Extrapolating flight metrics...",
+                    "output": f"Scanning user travel entries. Current baseline transport emissions sit at {round(total_co2 * 0.4, 2)} tons CO2. Extrapolating flight metrics..."
                 },
                 {
                     "agent": "Travel Optimization",
-                    "message": "Isolating high-altitude jetstream wind data for flight patterns. Proposing transit shift: replacing short-haul connections with high-speed rail limits emissions by 42%."
+                    "message": "Isolating high-altitude jetstream wind data for flight patterns. Proposing transit shift: replacing short-haul connections with high-speed rail limits emissions by 42%.",
+                    "output": "Isolating high-altitude jetstream wind data for flight patterns. Proposing transit shift: replacing short-haul connections with high-speed rail limits emissions by 42%."
                 },
                 {
                     "agent": "Prediction Agent",
-                    "message": "Plotting trajectory: adjusting this travel parameter shortens net-zero equilibrium time-horizon by 4.2 months. Rating will improve to A-."
+                    "message": "Plotting trajectory: adjusting this travel parameter shortens net-zero equilibrium time-horizon by 4.2 months. Rating will improve to A-.",
+                    "output": "Plotting trajectory: adjusting this travel parameter shortens net-zero equilibrium time-horizon by 4.2 months. Rating will improve to A-."
                 },
                 {
                     "agent": "Sustainability Coach",
-                    "message": "Syncing itinerary with local certified green hotels. Recommend adding a 15kg weight limit to luggage to shave off an extra 12kg of CO2."
+                    "message": "Syncing itinerary with local certified green hotels. Recommend adding a 15kg weight limit to luggage to shave off an extra 12kg of CO2.",
+                    "output": "Syncing itinerary with local certified green hotels. Recommend adding a 15kg weight limit to luggage to shave off an extra 12kg of CO2."
                 }
             ]
             final_rec = (
@@ -141,19 +145,23 @@ class AIAgentCoordinator:
             agent_outputs = [
                 {
                     "agent": "Carbon Analyst",
-                    "message": f"Parsing utility invoices. Electricity consumption accounts for {round(total_co2 * 0.35, 2)} tons. LPG usage shows peak anomalies."
+                    "message": f"Parsing utility invoices. Electricity consumption accounts for {round(total_co2 * 0.35, 2)} tons. LPG usage shows peak anomalies.",
+                    "output": f"Parsing utility invoices. Electricity consumption accounts for {round(total_co2 * 0.35, 2)} tons. LPG usage shows peak anomalies."
                 },
                 {
                     "agent": "Energy Optimization",
-                    "message": "Detecting vampire power loads. Engaging smart HVAC thermostat schedules. Solar panel addition would cover 65% of grid requirements."
+                    "message": "Detecting vampire power loads. Engaging smart HVAC thermostat schedules. Solar panel addition would cover 65% of grid requirements.",
+                    "output": "Detecting vampire power loads. Engaging smart HVAC thermostat schedules. Solar panel addition would cover 65% of grid requirements."
                 },
                 {
                     "agent": "Climate Research",
-                    "message": "Local grid mix utilizes 48% coal. Solar integration here has a high displacement yield, preventing 2.1 tons of offset emissions annually."
+                    "message": "Local grid mix utilizes 48% coal. Solar integration here has a high displacement yield, preventing 2.1 tons of offset emissions annually.",
+                    "output": "Local grid mix utilizes 48% coal. Solar integration here has a high displacement yield, preventing 2.1 tons of offset emissions annually."
                 },
                 {
                     "agent": "ESG Intelligence",
-                    "message": "Verified green credentials logged. This configuration enhances corporate/personal sustainability index alignment to AA+ level."
+                    "message": "Verified green credentials logged. This configuration enhances corporate/personal sustainability index alignment to AA+ level.",
+                    "output": "Verified green credentials logged. This configuration enhances corporate/personal sustainability index alignment to AA+ level."
                 }
             ]
             final_rec = (
@@ -171,19 +179,23 @@ class AIAgentCoordinator:
             agent_outputs = [
                 {
                     "agent": "Carbon Analyst",
-                    "message": f"Analyzing monthly expenditures. Retail items account for {round(total_co2 * 0.18, 2)} tons CO2. High-volume purchases noted in clothing."
+                    "message": f"Analyzing monthly expenditures. Retail items account for {round(total_co2 * 0.18, 2)} tons CO2. High-volume purchases noted in clothing.",
+                    "output": f"Analyzing monthly expenditures. Retail items account for {round(total_co2 * 0.18, 2)} tons CO2. High-volume purchases noted in clothing."
                 },
                 {
                     "agent": "Green Shopping",
-                    "message": "Cross-referencing circular vendors. Recommending organic cotton alternatives and local recycling drop-off programs."
+                    "message": "Cross-referencing circular vendors. Recommending organic cotton alternatives and local recycling drop-off programs.",
+                    "output": "Cross-referencing circular vendors. Recommending organic cotton alternatives and local recycling drop-off programs."
                 },
                 {
                     "agent": "Climate Research",
-                    "message": "Polyester manufacturing produces 3x the carbon of hemp fibers. Circular textile systems reduce landfill methane emissions."
+                    "message": "Polyester manufacturing produces 3x the carbon of hemp fibers. Circular textile systems reduce landfill methane emissions.",
+                    "output": "Polyester manufacturing produces 3x the carbon of hemp fibers. Circular textile systems reduce landfill methane emissions."
                 },
                 {
                     "agent": "Sustainability Coach",
-                    "message": "Set a goal to purchase circular-certified products. A 3-item clothing limit this month will earn +150 XP."
+                    "message": "Set a goal to purchase circular-certified products. A 3-item clothing limit this month will earn +150 XP.",
+                    "output": "Set a goal to purchase circular-certified products. A 3-item clothing limit this month will earn +150 XP."
                 }
             ]
             final_rec = (
@@ -201,19 +213,23 @@ class AIAgentCoordinator:
             agent_outputs = [
                 {
                     "agent": "Carbon Analyst",
-                    "message": f"Aggregating full footprint categories. Net output is {total_co2} tons per month. Score: {score}."
+                    "message": f"Aggregating full footprint categories. Net output is {total_co2} tons per month. Score: {score}.",
+                    "output": f"Aggregating full footprint categories. Net output is {total_co2} tons per month. Score: {score}."
                 },
                 {
                     "agent": "Climate Research",
-                    "message": "Planetary vital checks: Global CO2 ppm is 421.5. Local temperature anomaly is +1.1°C. Local actions are critical to stabilize ecosystems."
+                    "message": "Planetary vital checks: Global CO2 ppm is 421.5. Local temperature anomaly is +1.1°C. Local actions are critical to stabilize ecosystems.",
+                    "output": "Planetary vital checks: Global CO2 ppm is 421.5. Local temperature anomaly is +1.1°C. Local actions are critical to stabilize ecosystems."
                 },
                 {
                     "agent": "Prediction Agent",
-                    "message": "Predictive forecast models show that maintaining the current consumption pace reaches net-neutral baseline by Q3 2027."
+                    "message": "Predictive forecast models show that maintaining the current consumption pace reaches net-neutral baseline by Q3 2027.",
+                    "output": "Predictive forecast models show that maintaining the current consumption pace reaches net-neutral baseline by Q3 2027."
                 },
                 {
                     "agent": "Sustainability Coach",
-                    "message": "Reviewing active challenges. Recommend completing the weekly 'Water Conscious' sprint to boost streak and unlock the Earth Saver badge."
+                    "message": "Reviewing active challenges. Recommend completing the weekly 'Water Conscious' sprint to boost streak and unlock the Earth Saver badge.",
+                    "output": "Reviewing active challenges. Recommend completing the weekly 'Water Conscious' sprint to boost streak and unlock the Earth Saver badge."
                 }
             ]
             final_rec = (

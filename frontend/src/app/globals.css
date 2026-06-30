@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #fefff5;
+  --color-primary: #aeff7d;
   --color-surface-dim: #131313;
   --color-surface-bright: #3a3939;
   --color-surface-container-lowest: #0e0e0e;
@@ -10,36 +10,38 @@
   --color-surface-container-high: #2a2a2a;
   --color-surface-container-highest: #353534;
   --color-on-surface: #e5e2e1;
-  --color-on-surface-variant: #bdcbaf;
-  --color-outline: #87957b;
+  --color-on-surface-variant: #bdcbb0;
+  --color-outline: #88957c;
   --color-outline-variant: #3e4a35;
-  --color-primary-container: #10b981;
+  --color-primary-container: #6ae908;
   --color-secondary: #a5e7ff;
   --color-secondary-container: #00d2ff;
-  --color-tertiary: #fefff5;
-  --color-tertiary-container: #059669;
+  --color-tertiary: #b4fd83;
+  --color-tertiary-container: #99e06a;
   --color-background: #131313;
   --color-error: #ffb4ab;
   --color-error-container: #93000a;
 
-  --color-primary-fixed: #34d399;
-  --color-primary-fixed-dim: #059669;
+  --color-primary-fixed: #80ff30;
+  --color-primary-fixed-dim: #65e100;
   --color-secondary-fixed: #b6ebff;
   --color-secondary-fixed-dim: #47d6ff;
   --color-tertiary-fixed: #adf67c;
   --color-tertiary-fixed-dim: #93d964;
   --color-surface: #131313;
 
-  --font-display-xl: 'IBM Plex Sans', sans-serif;
-  --font-data-mono: 'IBM Plex Mono', monospace;
-  --font-headline-lg: 'IBM Plex Sans', sans-serif;
-  --font-body-md: 'IBM Plex Sans', sans-serif;
-  --font-label-caps: 'IBM Plex Sans', sans-serif;
+  --font-sans: var(--font-ibm-plex-sans), sans-serif;
+  --font-mono: var(--font-ibm-plex-mono), monospace;
+  --font-display-xl: var(--font-ibm-plex-sans), sans-serif;
+  --font-data-mono: var(--font-ibm-plex-mono), monospace;
+  --font-headline-lg: var(--font-ibm-plex-sans), sans-serif;
+  --font-body-md: var(--font-ibm-plex-sans), sans-serif;
+  --font-label-caps: var(--font-ibm-plex-sans), sans-serif;
 }
 
 :root {
   --glass-border: rgba(255, 255, 255, 0.1);
-  --neon-primary: #10b981;
+  --neon-primary: #6ae908;
   --neon-secondary: #00d2ff;
 }
 
@@ -60,8 +62,8 @@ body {
 }
 
 .glass-card:hover {
-  border-color: rgba(16, 185, 129, 0.3);
-  box-shadow: 0 0 30px rgba(16, 185, 129, 0.05), inset 0 1px 2px rgba(255, 255, 255, 0.2);
+  border-color: rgba(106, 233, 8, 0.3);
+  box-shadow: 0 0 30px rgba(106, 233, 8, 0.05), inset 0 1px 2px rgba(255, 255, 255, 0.2);
   transform: translateY(-4px) perspective(1000px) rotateX(2deg);
 }
 
@@ -73,23 +75,23 @@ body {
 }
 
 .neon-glow-emerald {
-  box-shadow: 0 0 40px -10px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 0 40px -10px rgba(106, 233, 8, 0.4);
 }
 
 .neon-underglow {
-  box-shadow: 0 0 40px rgba(16, 185, 129, 0.08);
+  box-shadow: 0 0 40px rgba(106, 233, 8, 0.08);
 }
 
 .liquid-fill-hover:hover {
-  background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, transparent 100%);
+  background: linear-gradient(90deg, rgba(106, 233, 8, 0.1) 0%, transparent 100%);
 }
 
 .liquid-fill {
-  background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0) 100%);
+  background: linear-gradient(90deg, rgba(106, 233, 8, 0.1) 0%, rgba(106, 233, 8, 0) 100%);
 }
 
 .liquid-gradient {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(0, 210, 255, 0.05) 100%);
+  background: linear-gradient(135deg, rgba(106, 233, 8, 0.1) 0%, rgba(0, 210, 255, 0.05) 100%);
 }
 
 /* Custom scrollbars */
@@ -99,12 +101,12 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(16, 185, 129, 0.2);
+  background: rgba(106, 233, 8, 0.2);
   border-radius: 10px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #059669;
+  background: #377604;
 }
 
 .scroll-hide::-webkit-scrollbar {
@@ -128,13 +130,13 @@ body {
 
 .wave-bar {
   width: 3px;
-  background: #10b981;
+  background: #6ae908;
   border-radius: 99px;
   animation: wave 1.5s ease-in-out infinite;
 }
 
 .active-glow {
-  box-shadow: 0 0 15px #10b981, inset 0 0 5px #10b981;
+  box-shadow: 0 0 15px #6ae908, inset 0 0 5px #6ae908;
 }
 
 .thinking-glow {
@@ -170,3 +172,23 @@ body {
   width: fit-content;
   animation: marquee 40s linear infinite;
 }
+
+/* Accessibility focus state styles */
+:focus-visible {
+  outline: 2px solid var(--color-primary-container, #6ae908);
+  outline-offset: 2px;
+}
+
+/* Screen reader only utility class */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+

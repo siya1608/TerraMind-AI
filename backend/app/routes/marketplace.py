@@ -109,6 +109,7 @@ def make_contribution(
 
     return {
         "id": contribution.id,
+        "project_id": project.id,
         "project_title": project.title,
         "amount": contribution.amount,
         "co2_offset": round(co2_offset, 3),

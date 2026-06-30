@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List
 
 from app.db.session import get_db
-from app.db.models import User, EcoBadge, UserBadge, EcoChallenge, Leaderboard, UserProfile
+from app.db.models import User, EcoBadge, UserBadge, EcoChallenge, Leaderboard, UserProfile, UserChallenge
 from app.security import get_current_user, get_current_user_optional
 
 router = APIRouter(prefix="/gamification", tags=["gamification"])
@@ -48,8 +48,8 @@ def get_badges(current_user: User = Depends(get_current_user), db: Session = Dep
     return [
         {
             "id": b.id, "name": b.name, "description": b.description,
-            "icon": b.icon, "xp_required": b.xp_required,
-            "earned": b.id in earned_ids
+            "icon": b.icon, "icon_name": b.icon, "xp_required": b.xp_required,
+            "earned": b.id in earned_ids, "is_earned": b.id in earned_ids
         }
         for b in all_badges
     ]
@@ -57,16 +57,97 @@ def get_badges(current_user: User = Depends(get_current_user), db: Session = Dep
 @router.get("/challenges")
 def get_challenges(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     seed_gamification(db)
-    return db.query(EcoChallenge).all()
+    completed_ids = {uc.challenge_id for uc in db.query(UserChallenge).filter(UserChallenge.user_id == current_user.id).all()}
+    challenges = db.query(EcoChallenge).all()
+    return [
+        {
+            "id": c.id,
+            "title": c.title,
+            "description": c.description,
+            "xp_reward": c.xp_reward,
+            "duration_days": c.duration_days,
+            "difficulty": c.difficulty,
+            "is_completed": c.id in completed_ids
+        }
+        for c in challenges
+    ]
 
-@router.get("/leaderboard")
-def get_leaderboard(period: str = "monthly", db: Session = Depends(get_db), current_user: User = Depends(get_current_user_optional)):
+@router.post("/challenges/claim")
+def claim_challenge(
+    payload: dict,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    challenge_id = payload.get("challenge_id")
+    if not challenge_id:
+        raise HTTPException(status_code=400, detail="challenge_id is required")
+    
+    challenge = None
+    # 1. Try to find by integer ID
+    try:
+        challenge = db.query(EcoChallenge).filter(EcoChallenge.id == int(challenge_id)).first()
+    except (ValueError, TypeError):
+        pass
+        
+    # 2. Try to find by title/string
+    if not challenge:
+        challenge = db.query(EcoChallenge).filter(EcoChallenge.title == challenge_id).first()
+        
+    if not challenge:
+        raise HTTPException(status_code=404, detail="Challenge not found")
+        
+    existing = db.query(UserChallenge).filter(
+        UserChallenge.user_id == current_user.id,
+        UserChallenge.challenge_id == challenge.id
+    ).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Challenge already completed")
+        
+    user_challenge = UserChallenge(
+        user_id=current_user.id,
+        challenge_id=challenge.id
+    )
+    db.add(user_challenge)
+    
+    # Award XP
+    if current_user.profile:
+        current_user.profile.xp += challenge.xp_reward
+        xp = current_user.profile.xp
+        if xp >= 2500:
+            current_user.profile.current_level = "Earth Guardian"
+        elif xp >= 1200:
+            current_user.profile.current_level = "Sustainability Champion"
+        elif xp >= 500:
+            current_user.profile.current_level = "Climate Warrior"
+        elif xp >= 100:
+            current_user.profile.current_level = "Green Innovator"
+            
+    # Sync leaderboard
+    lb = db.query(Leaderboard).filter(
+        Leaderboard.user_id == current_user.id,
+        Leaderboard.period == "monthly"
+    ).first()
+    if lb and current_user.profile:
+        lb.xp = current_user.profile.xp
+        
+    db.commit()
+    return {"message": f"Successfully claimed reward for challenge '{challenge.title}'", "xp_earned": challenge.xp_reward}
+
+@router.get("/leaderboard", summary="Top users by XP for a given period")
+def get_leaderboard(
+    period: str = Query(default="monthly", pattern=r"^(weekly|monthly|all_time)$"),
+    skip: int = Query(default=0, ge=0, description="Records to skip"),
+    limit: int = Query(default=50, ge=1, le=100, description="Max records (1-100)"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user_optional)
+):
     entries = (
         db.query(Leaderboard, UserProfile)
         .join(UserProfile, UserProfile.id == Leaderboard.user_id)
         .filter(Leaderboard.period == period)
         .order_by(Leaderboard.xp.desc())
-        .limit(50)
+        .offset(skip)
+        .limit(limit)
         .all()
     )
     result = []

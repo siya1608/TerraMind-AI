@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 
 from app.db.session import get_db
-from app.db.models import User, UserProfile
+from app.db.models import User, UserProfile, Leaderboard
 from app.schemas import UserCreate, UserLogin, Token, UserProfileResponse, UserProfileUpdate
 from app.security import hash_password, verify_password, create_access_token, get_current_user
 
@@ -43,6 +43,11 @@ def signup(user_in: UserCreate, db: Session = Depends(get_db)):
         streak=1
     )
     db.add(new_profile)
+    db.flush()
+
+    # Create leaderboard entry for this user
+    lb = Leaderboard(user_id=new_user.id, xp=0, period="monthly")
+    db.add(lb)
     db.commit()
     
     access_token = create_access_token(subject=new_user.id)

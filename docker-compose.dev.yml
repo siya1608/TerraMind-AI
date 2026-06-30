@@ -1,0 +1,22 @@
+version: '3.9'
+
+services:
+  # ─────────────────────────────────────────────────────────────────
+  # FastAPI Backend (Development Override)
+  # ─────────────────────────────────────────────────────────────────
+  backend:
+    volumes:
+      - ./backend:/app
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  # ─────────────────────────────────────────────────────────────────
+  # Next.js Frontend (Development Override)
+  # ─────────────────────────────────────────────────────────────────
+  frontend:
+    build:
+      target: deps
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    command: ["npm", "run", "dev"]

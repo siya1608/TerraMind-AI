@@ -23,7 +23,7 @@ services:
       retries: 5
 
   # ─────────────────────────────────────────────────────────────────
-  # FastAPI Backend
+  # FastAPI Backend (Production)
   # ─────────────────────────────────────────────────────────────────
   backend:
     build:
@@ -36,7 +36,7 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-terramind_ai_user}:${POSTGRES_PASSWORD:-changeme_strong_password}@postgres:5432/${POSTGRES_DB:-terramind_ai}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-terramind_ai_user}:${POSTGRES_PASSWORD:-terramind_ai_strong_password_2026}@postgres:5432/${POSTGRES_DB:-terramind_ai}
       SUPABASE_URL: ${SUPABASE_URL}
       SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
       SUPABASE_JWT_SECRET: ${SUPABASE_JWT_SECRET}
@@ -44,33 +44,24 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    volumes:
-      - ./backend:/app
-    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
   # ─────────────────────────────────────────────────────────────────
-  # Next.js Frontend (Development)
+  # Next.js Frontend (Production)
   # ─────────────────────────────────────────────────────────────────
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-      target: deps     # Only install deps for dev
     container_name: terramind_ai_frontend
     restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
-      NEXT_PUBLIC_API_URL: http://backend:8000/api
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api
     env_file:
       - ./frontend/.env.local
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - /app/.next
     depends_on:
       - backend
-    command: ["npm", "run", "dev"]
 
 volumes:
   postgres_data:

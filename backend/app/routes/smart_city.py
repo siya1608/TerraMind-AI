@@ -5,8 +5,8 @@ from typing import List
 from app.db.session import get_db
 from app.db.models import CityStatistic
 from app.schemas import CityStatResponse
-from app.security import get_current_user
 from app.db.models import User
+from app.services.cache import ttl_cache
 
 router = APIRouter(prefix="/smart-city", tags=["smart-city"])
 
@@ -34,11 +34,18 @@ def seed_cities(db: Session):
             db.add(city)
         db.commit()
 
-@router.get("/statistics", response_model=List[CityStatResponse])
+@router.get("/statistics", response_model=List[CityStatResponse], summary="Global smart city sustainability statistics")
 def get_city_statistics(db: Session = Depends(get_db)):
+    """Returns sustainability metrics for tracked cities. Result is cached for 5 minutes."""
     seed_cities(db)
+    return _fetch_city_statistics(db)
+
+
+@ttl_cache(ttl_seconds=300, key_prefix="smart_city")
+def _fetch_city_statistics(db) -> List:
+    """Internal cached data-fetch, refreshed at most every 5 minutes."""
     cities = db.query(CityStatistic).order_by(CityStatistic.sustainability_ranking).all()
-    return cities
+    return [CityStatResponse.model_validate(c).model_dump() for c in cities]
 
 @router.get("/aqi-levels")
 def get_aqi_levels(db: Session = Depends(get_db)):

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../context/AppContext';
 import DashboardShell from '../components/DashboardShell';
+import GlassCard from '../components/GlassCard';
 
 export default function DashboardPage() {
   const { profile, calculations } = useApp();
@@ -36,7 +37,7 @@ export default function DashboardPage() {
       <div className="flex-1 flex flex-col gap-6">
         {/* Hero Section: Personal Carbon Score */}
         <section className="mb-2">
-          <div className="glass-card neon-glow-emerald rounded-3xl p-8 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 border-l-4 border-l-primary-container">
+          <GlassCard glowColor="emerald" className="p-8 flex flex-col md:flex-row items-center justify-between gap-8 border-l-4 border-l-primary-container relative">
             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary-container/5 to-transparent pointer-events-none"></div>
             
             <div className="relative z-10 flex-1">
@@ -75,7 +76,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Circular Telemetry Visual */}
-            <div className="w-full md:w-[320px] h-[200px] glass-card rounded-2xl relative flex items-center justify-center p-4">
+            <GlassCard className="w-full md:w-[320px] h-[200px] relative flex items-center justify-center p-4 rounded-2xl" tiltEnabled={false}>
               <div className="relative z-10 flex flex-col items-center">
                 <div className="w-24 h-24 rounded-full border-4 border-dashed border-primary-container/30 flex items-center justify-center animate-[spin_20s_linear_infinite]">
                   <div className="w-18 h-18 rounded-full border-4 border-primary-container flex items-center justify-center animate-[spin_10s_linear_infinite_reverse]">
@@ -86,14 +87,14 @@ export default function DashboardPage() {
                   REAL-TIME TELEMETRY ACTIVE
                 </div>
               </div>
-            </div>
-          </div>
+            </GlassCard>
+          </GlassCard>
         </section>
 
         {/* Bento Grid Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 auto-rows-[180px]">
           {/* Sustainability Score */}
-          <div className="glass-card md:col-span-1 rounded-2xl p-6 flex flex-col justify-between group">
+          <GlassCard glowColor="emerald" className="md:col-span-1 rounded-2xl p-6 flex flex-col justify-between group">
             <div className="flex justify-between items-start">
               <span className="material-symbols-outlined text-primary-container">shield_with_heart</span>
               <span className="font-mono text-[10px] text-on-surface-variant/50">MTD-01</span>
@@ -112,10 +113,10 @@ export default function DashboardPage() {
                 ></div>
               </div>
             </div>
-          </div>
+          </GlassCard>
 
           {/* Eco Impact Status */}
-          <div className="glass-card md:col-span-1 rounded-2xl p-6 flex flex-col justify-between overflow-hidden relative group">
+          <GlassCard glowColor="cyan" className="md:col-span-1 rounded-2xl p-6 flex flex-col justify-between overflow-hidden relative group">
             <div className="absolute -right-4 -top-4 opacity-10 group-hover:opacity-20 transition-opacity">
               <span className="material-symbols-outlined text-[100px] text-secondary">workspace_premium</span>
             </div>
@@ -136,10 +137,10 @@ export default function DashboardPage() {
                 Next level: {pointsLeft} points left ({Math.round(xpPercent)}%)
               </p>
             </div>
-          </div>
+          </GlassCard>
 
           {/* Usage Trend Chart */}
-          <div className="glass-card md:col-span-2 md:row-span-2 rounded-2xl p-6 flex flex-col justify-between">
+          <GlassCard className="md:col-span-2 md:row-span-2 rounded-2xl p-6 flex flex-col justify-between">
             <div className="flex justify-between items-center mb-4">
               <div>
                 <div className="font-headline-lg text-lg text-white font-bold">Usage Trends</div>
@@ -171,7 +172,7 @@ export default function DashboardPage() {
                   key={idx} 
                   className={`w-full rounded-t-sm relative group/bar transition-all duration-500 ${
                     idx === 11 
-                      ? 'bg-primary-container/80 hover:bg-primary-container shadow-[0_0_15px_rgba(16,185,129,0.3)]' 
+                      ? 'bg-primary-container/80 hover:bg-primary-container shadow-[0_0_15px_rgba(106,233,8,0.3)]' 
                       : 'bg-primary-container/20 hover:bg-primary-container/40'
                   }`}
                   style={{ height: `${val}%` }}
@@ -195,10 +196,10 @@ export default function DashboardPage() {
             <div className="flex justify-between mt-6 font-mono text-[9px] text-on-surface-variant/40">
               <span>JAN</span><span>MAR</span><span>MAY</span><span>JUL</span><span>SEP</span><span>NOV</span>
             </div>
-          </div>
+          </GlassCard>
 
           {/* AI Prediction Card */}
-          <div className="glass-card md:col-span-2 rounded-2xl p-6 overflow-hidden relative group flex flex-col justify-between">
+          <GlassCard className="md:col-span-2 rounded-2xl p-6 overflow-hidden relative group flex flex-col justify-between" glowColor="cyan">
             <div className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity -z-10">
               <div 
                 className="w-full h-full bg-cover bg-center" 
@@ -227,7 +228,7 @@ export default function DashboardPage() {
               <span className="text-[10px] font-mono text-primary-container">TRAINING: STABLE</span>
               <span className="material-symbols-outlined text-white/20 text-4xl">query_stats</span>
             </div>
-          </div>
+          </GlassCard>
         </div>
 
         {/* Recent Logs Section */}

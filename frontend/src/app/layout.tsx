@@ -39,7 +39,15 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col bg-background text-on-surface font-sans">
         <AppProvider>
-          {children}
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary-container focus:text-on-primary-container focus:rounded-lg"
+          >
+            Skip to main content
+          </a>
+          <main id="main-content" className="flex-grow flex flex-col">
+            {children}
+          </main>
         </AppProvider>
       </body>
     </html>

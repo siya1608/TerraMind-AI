@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { apiFetch, apiPost } from '../lib/api';
 
 // Interfaces matching backend schemas
 export interface UserProfile {
@@ -39,6 +40,15 @@ export interface OffsetProject {
   price_per_ton: number;
   co2_reduction: number;
   image_url: string;
+}
+
+export interface OffsetContributionResponse {
+  id: number;
+  project_id: number;
+  amount: number;
+  co2_offset: number;
+  earned_xp: number;
+  created_at: string;
 }
 
 export interface CityStat {
@@ -98,6 +108,33 @@ export interface AdminStats {
   system_status: string;
 }
 
+export interface CarbonLogInput {
+  transport: {
+    car_km: number;
+    bike_km: number;
+    public_transport_km: number;
+    flight_km: number;
+  };
+  energy: {
+    electricity_kwh: number;
+    lpg_kg: number;
+    renewable_kwh: number;
+  };
+  food: {
+    diet_type: string;
+  };
+  shopping: {
+    clothing_spend: number;
+    electronics_spend: number;
+    household_spend: number;
+  };
+  waste: {
+    disposal_kg: number;
+    recycling_kg: number;
+  };
+  water_liters: number;
+}
+
 interface AppContextProps {
   apiUrl: string;
   token: string | null;
@@ -111,11 +148,11 @@ interface AppContextProps {
   googleLogin: (email: string, name: string, picture: string) => Promise<boolean>;
   logout: () => void;
   fetchProfile: () => Promise<void>;
-  calculateCarbon: (data: any) => Promise<CalculationResult>;
+  calculateCarbon: (data: CarbonLogInput) => Promise<CalculationResult>;
   sendMessageToCoach: (message: string) => Promise<string>;
   dispatchAgentTask: (taskDescription: string) => Promise<AgentTaskResponse>;
   fetchMarketplaceProjects: () => Promise<OffsetProject[]>;
-  contributeOffset: (projectId: number, amount: number) => Promise<any>;
+  contributeOffset: (projectId: number, amount: number) => Promise<OffsetContributionResponse>;
   fetchSmartCityStats: () => Promise<CityStat[]>;
   fetchClimateMapStats: () => Promise<CountryStat[]>;
   fetchLeaderboard: () => Promise<LeaderboardEntry[]>;
@@ -149,22 +186,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const fetchProfileData = async (activeToken: string) => {
     try {
-      const res = await fetch(`${apiUrl}/auth/profile`, {
-        headers: {
-          Authorization: `Bearer ${activeToken}`,
-        },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setProfile(data);
-        // also fetch calculations automatically
-        fetchCalculationsHistory(activeToken);
-      } else {
-        // Token might have expired
-        logout();
-      }
+      const data = await apiFetch<UserProfile>('/auth/profile', { token: activeToken });
+      setProfile(data);
+      // also fetch calculations automatically
+      fetchCalculationsHistory(activeToken);
     } catch (e) {
       console.error('Error loading profile', e);
+      // Token might have expired
+      logout();
     } finally {
       setLoading(false);
     }
@@ -172,15 +201,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const fetchCalculationsHistory = async (activeToken: string) => {
     try {
-      const res = await fetch(`${apiUrl}/calculator/history`, {
-        headers: {
-          Authorization: `Bearer ${activeToken}`,
-        },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setCalculations(data);
-      }
+      const data = await apiFetch<CalculationResult[]>('/calculator/history', { token: activeToken });
+      setCalculations(data);
     } catch (e) {
       console.error('Error fetching calculation history', e);
     }
@@ -188,19 +210,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const res = await fetch(`${apiUrl}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        localStorage.setItem('terramind_ai_token', data.access_token);
-        setToken(data.access_token);
-        await fetchProfileData(data.access_token);
-        return true;
-      }
-      return false;
+      const data = await apiPost<{ access_token: string }>('/auth/login', { email, password });
+      localStorage.setItem('terramind_ai_token', data.access_token);
+      setToken(data.access_token);
+      await fetchProfileData(data.access_token);
+      return true;
     } catch (e) {
       console.error('Login error', e);
       return false;
@@ -209,19 +223,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const signup = async (email: string, password: string): Promise<boolean> => {
     try {
-      const res = await fetch(`${apiUrl}/auth/signup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        localStorage.setItem('terramind_ai_token', data.access_token);
-        setToken(data.access_token);
-        await fetchProfileData(data.access_token);
-        return true;
-      }
-      return false;
+      const data = await apiPost<{ access_token: string }>('/auth/signup', { email, password });
+      localStorage.setItem('terramind_ai_token', data.access_token);
+      setToken(data.access_token);
+      await fetchProfileData(data.access_token);
+      return true;
     } catch (e) {
       console.error('Signup error', e);
       return false;
@@ -230,19 +236,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const googleLogin = async (email: string, name: string, picture: string): Promise<boolean> => {
     try {
-      const res = await fetch(`${apiUrl}/auth/google`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, name, picture }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        localStorage.setItem('terramind_ai_token', data.access_token);
-        setToken(data.access_token);
-        await fetchProfileData(data.access_token);
-        return true;
-      }
-      return false;
+      const data = await apiPost<{ access_token: string }>('/auth/google', { email, name, picture });
+      localStorage.setItem('terramind_ai_token', data.access_token);
+      setToken(data.access_token);
+      await fetchProfileData(data.access_token);
+      return true;
     } catch (e) {
       console.error('Google login error', e);
       return false;
@@ -261,20 +259,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     if (token) await fetchProfileData(token);
   };
 
-  const calculateCarbon = async (data: any): Promise<CalculationResult> => {
+  const calculateCarbon = async (data: CarbonLogInput): Promise<CalculationResult> => {
     if (!token) throw new Error('Unauthenticated');
-    const res = await fetch(`${apiUrl}/calculator/calculate`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) {
-      throw new Error('Calculation failed');
-    }
-    const result = await res.json();
+    const result = await apiPost<CalculationResult>('/calculator/calculate', data, { token });
     // Prepend new calculation
     setCalculations((prev) => [result, ...prev]);
     // Refresh profile to see level-up or XP additions
@@ -284,58 +271,31 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const sendMessageToCoach = async (message: string): Promise<string> => {
     if (!token) throw new Error('Unauthenticated');
-    const res = await fetch(`${apiUrl}/coach/chat`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ message }),
-    });
-    if (!res.ok) {
-      throw new Error('Coach message failed');
-    }
-    const data = await res.json();
+    const data = await apiPost<{ reply: string }>('/coach/chat', { message }, { token });
     return data.reply;
   };
 
   const dispatchAgentTask = async (taskDescription: string): Promise<AgentTaskResponse> => {
     if (!token) throw new Error('Unauthenticated');
-    const res = await fetch(`${apiUrl}/agents/dispatch`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ task_description: taskDescription }),
-    });
-    if (!res.ok) {
-      throw new Error('Agent dispatch failed');
-    }
-    return await res.json();
+    return await apiPost<AgentTaskResponse>(
+      '/agents/dispatch',
+      { task_description: taskDescription },
+      { token }
+    );
   };
 
   const fetchMarketplaceProjects = async (): Promise<OffsetProject[]> => {
     if (!token) return [];
-    const res = await fetch(`${apiUrl}/marketplace/projects`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!res.ok) throw new Error('Failed to load marketplace projects');
-    return await res.json();
+    return await apiFetch<OffsetProject[]>('/marketplace/projects', { token });
   };
 
-  const contributeOffset = async (projectId: number, amount: number): Promise<any> => {
+  const contributeOffset = async (projectId: number, amount: number): Promise<OffsetContributionResponse> => {
     if (!token) throw new Error('Unauthenticated');
-    const res = await fetch(`${apiUrl}/marketplace/contribute`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ project_id: projectId, amount }),
-    });
-    if (!res.ok) throw new Error('Contribution failed');
-    const data = await res.json();
+    const data = await apiPost<OffsetContributionResponse>(
+      '/marketplace/contribute',
+      { project_id: projectId, amount },
+      { token }
+    );
     // Refresh profile since XP will be earned
     fetchProfile();
     return data;
@@ -343,9 +303,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const fetchSmartCityStats = async (): Promise<CityStat[]> => {
     try {
-      const res = await fetch(`${apiUrl}/smart-city/statistics`);
-      if (!res.ok) throw new Error('Failed to fetch smart city stats');
-      return await res.json();
+      return await apiFetch<CityStat[]>('/smart-city/statistics');
     } catch (e) {
       console.warn('Backend unavailable, using smart city stats fallback:', e);
       return [
@@ -361,9 +319,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const fetchClimateMapStats = async (): Promise<CountryStat[]> => {
     try {
-      const res = await fetch(`${apiUrl}/climate-map/countries`);
-      if (!res.ok) throw new Error('Failed to fetch climate map stats');
-      return await res.json();
+      return await apiFetch<CountryStat[]>('/climate-map/countries');
     } catch (e) {
       console.warn('Backend unavailable, using climate map stats fallback:', e);
       return [
@@ -378,13 +334,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const fetchLeaderboard = async (): Promise<LeaderboardEntry[]> => {
     try {
-      const headers: Record<string, string> = {};
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-      const res = await fetch(`${apiUrl}/gamification/leaderboard`, { headers });
-      if (!res.ok) throw new Error('Failed to fetch leaderboard');
-      return await res.json();
+      return await apiFetch<LeaderboardEntry[]>('/gamification/leaderboard', token ? { token } : undefined);
     } catch (e) {
       console.warn('Backend unavailable, using leaderboard fallback:', e);
       return [
@@ -399,46 +349,29 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const fetchChallenges = async (): Promise<EcoChallenge[]> => {
     if (!token) return [];
-    const res = await fetch(`${apiUrl}/gamification/challenges`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!res.ok) throw new Error('Failed to fetch challenges');
-    return await res.json();
+    return await apiFetch<EcoChallenge[]>('/gamification/challenges', { token });
   };
 
   const fetchBadges = async (): Promise<EcoBadge[]> => {
     if (!token) return [];
-    const res = await fetch(`${apiUrl}/gamification/badges`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!res.ok) throw new Error('Failed to fetch badges');
-    return await res.json();
+    return await apiFetch<EcoBadge[]>('/gamification/badges', { token });
   };
 
   const completeChallenge = async (challengeId: string): Promise<boolean> => {
     if (!token) return false;
-    const res = await fetch(`${apiUrl}/gamification/challenges/claim`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ challenge_id: challengeId }),
-    });
-    if (res.ok) {
+    try {
+      await apiPost<unknown>('/gamification/challenges/claim', { challenge_id: challengeId }, { token });
       fetchProfile();
       return true;
+    } catch (e) {
+      console.error('Failed to claim challenge', e);
+      return false;
     }
-    return false;
   };
 
   const fetchAdminStats = async (): Promise<AdminStats> => {
     if (!token) throw new Error('Unauthenticated');
-    const res = await fetch(`${apiUrl}/admin/dashboard-stats`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!res.ok) throw new Error('Admin stats failed');
-    return await res.json();
+    return await apiFetch<AdminStats>('/admin/dashboard-stats', { token });
   };
 
   const triggerReportDownload = async (format: 'pdf' | 'csv'): Promise<void> => {

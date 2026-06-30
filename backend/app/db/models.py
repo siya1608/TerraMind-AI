@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, date
-from sqlalchemy import Column, String, Integer, Float, DateTime, ForeignKey, Date, JSON, Text, Table, UniqueConstraint
+from sqlalchemy import Column, String, Integer, Float, DateTime, ForeignKey, Date, JSON, Text, Table, UniqueConstraint, Index
 from sqlalchemy.orm import relationship
 from app.db.session import Base
 
@@ -26,6 +26,7 @@ class User(Base):
     recommendations = relationship("AIRecommendation", back_populates="user", cascade="all, delete-orphan")
     offset_contributions = relationship("UserOffsetContribution", back_populates="user", cascade="all, delete-orphan")
     reports = relationship("Report", back_populates="user", cascade="all, delete-orphan")
+    completed_challenges = relationship("UserChallenge", cascade="all, delete-orphan")
 
 class UserProfile(Base):
     __tablename__ = "user_profiles"
@@ -79,6 +80,11 @@ class CarbonCalculation(Base):
     user = relationship("User", back_populates="calculations")
     entry = relationship("CarbonEntry", back_populates="calculations")
 
+    # Composite index: fast retrieval of a user's history ordered by time
+    __table_args__ = (
+        Index("ix_carbon_calculations_user_timestamp", "user_id", "timestamp"),
+    )
+
 class SustainabilityScore(Base):
     __tablename__ = "sustainability_scores"
     
@@ -128,6 +134,16 @@ class EcoChallenge(Base):
     difficulty = Column(String(50), nullable=False, default="Medium")
     created_at = Column(DateTime, default=datetime.utcnow)
 
+class UserChallenge(Base):
+    __tablename__ = "user_challenges"
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    challenge_id = Column(Integer, ForeignKey("eco_challenges.id", ondelete="CASCADE"), nullable=False)
+    completed_at = Column(DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (UniqueConstraint('user_id', 'challenge_id', name='uniq_user_challenge'),)
+
 class EcoBadge(Base):
     __tablename__ = "eco_badges"
     
@@ -163,8 +179,12 @@ class Leaderboard(Base):
     period = Column(String(50), nullable=False, default="monthly")  # 'weekly', 'monthly', 'all_time'
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    __table_args__ = (UniqueConstraint('user_id', 'period', name='uniq_user_leaderboard'),)
-    
+    # Composite index: fast leaderboard retrieval sorted by XP descending within a period
+    __table_args__ = (
+        UniqueConstraint("user_id", "period", name="uniq_user_leaderboard"),
+        Index("ix_leaderboard_period_xp", "period", "xp"),
+    )
+
     user = relationship("User", back_populates="leaderboard")
 
 class ChatHistory(Base):

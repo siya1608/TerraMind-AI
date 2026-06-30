@@ -37,6 +37,7 @@ def get_agent_status(current_user: User = Depends(get_current_user), db: Session
         statuses.append({**agent, "progress": progress, "state": state})
     return {"agents": statuses}
 
+@router.post("/dispatch", response_model=AgentTaskResponse)
 @router.post("/collaborate", response_model=AgentTaskResponse)
 def run_collaboration(
     task_in: AgentTaskRequest,
